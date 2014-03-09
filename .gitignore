@@ -28,6 +28,7 @@ Icon
 *.so
 *.so.*
 *.dylib
+test.c
 
 # Executables
 *.exe
