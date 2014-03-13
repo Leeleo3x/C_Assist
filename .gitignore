@@ -1,6 +1,7 @@
 .DS_Store
 .AppleDouble
 .LSOverride
+*.dSYM
 
 # Icon must ends with two \r.
 Icon
@@ -31,6 +32,7 @@ Icon
 test.c
 
 # Executables
+*.ERR
 *.exe
 *.out
 *.app

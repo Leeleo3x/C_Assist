@@ -161,8 +161,8 @@
 
 struct normalNode
 {
-    char content[30];//内容
-    char describe[30];//描述
+    char * content;//内容
+    char * describe;//描述
     int type;//种别码
     int addr;//入口地址
     int line;//所在行数
@@ -171,8 +171,8 @@ struct normalNode
 
 struct errorNode
 {
-    char content[30];
-    char describe[30];
+    char * content;
+    char * describe;
     int type;
     int line;
     struct errorNode *next;
@@ -180,8 +180,8 @@ struct errorNode
 
 struct identiferNode
 {
-    char content[30];
-    char describe[30];
+    char * content;
+    char * describe;
     int type;
     int addr;
     int line;
