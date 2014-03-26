@@ -8,7 +8,7 @@
  *        Version:  1.0
  *        Created:  03/09/2014 17:52:00
  *       Revision:  none
- *       Compiler:  gcc
+ *       Compiler:  watcom
  *
  *         Author:  Leo Lee (), leeleo3x@gmail.com
  *   Organization:  ZJU
@@ -28,7 +28,7 @@ int leftMiddle = 0;
 int rightMiddle = 0;
 int leftBig = 0;
 int rightBig = 0;
-int lineBra[6][1000] = {0};
+int lineBra[6][1000] ;
 int static_iden_number = 0;
 
 struct normalNode * normalHead, * normalTail = NULL;
@@ -63,7 +63,7 @@ void initialize()
     }
 }
 
-void createNewNode(char *content,char *describe,int type,int addr,int line)
+void createNewNode(const char *content,const char *describe,int type,int addr,int line)
 {
     struct normalNode * temp = (struct normalNode *) malloc(sizeof(struct normalNode));
     if (normalTail == NULL)
@@ -76,15 +76,17 @@ void createNewNode(char *content,char *describe,int type,int addr,int line)
         normalTail->next = temp;
         normalTail = temp;
     }
-    temp->content = content;
-    temp->describe = describe;
+    temp->content = (char *) malloc(sizeof(char));
+    temp->describe = (char *) malloc(sizeof(char));
+    strcpy(temp->content, content);
+    strcpy(temp->describe, describe);
     temp->type = type;
     temp->addr = addr;
     temp->line = line;
     temp->next = NULL;
 }
 
-void createNewError(char *content,char *describe,int type,int line)
+void createNewError(const char *content,const char *describe,int type,int line)
 {
     struct errorNode * temp = (struct errorNode *) malloc(sizeof(struct errorNode));
     if (errorTail == NULL)
@@ -97,14 +99,16 @@ void createNewError(char *content,char *describe,int type,int line)
         errorTail->next = temp;
         errorTail = temp;
     }
-    temp->content = content;
-    temp->describe = describe;
+    temp->content = (char *) malloc(sizeof(char));
+    temp->describe = (char *) malloc(sizeof(char));
+    strcpy(temp->content, content);
+    strcpy(temp->describe, describe);
     temp->type = type;
     temp->line = line;
     temp->next = NULL;
 }
 
-int createNewIden(char * content,char * describe,int type,int addr,int line)
+int createNewIden(const char * content,const char * describe,int type,int addr,int line)
 {
     struct identiferNode * p = idenHead;
     struct identiferNode * temp = (struct identiferNode *) malloc(sizeof(struct identiferNode));
@@ -123,8 +127,10 @@ int createNewIden(char * content,char * describe,int type,int addr,int line)
     {
         addr_temp = ++static_iden_number;
     }
-    temp->content = content;
-    temp->describe = describe;
+    temp->content = (char *) malloc(sizeof(char));
+    temp->describe = (char *) malloc(sizeof(char));
+    strcpy(temp->content, content);
+    strcpy(temp->describe, describe);
     temp->type = type;
     temp->addr = addr_temp;
     temp->line = line;
@@ -197,9 +203,8 @@ void preProcess(char * word, int line)
     }
 }
 
-void scanner()
+void scanner(char * filename)
 {
-    char * filename;
     char ch;
     char array[30];
     char * word;
@@ -811,9 +816,12 @@ void BraMappingError()
         }
     }
 }
+
+void work(char * file)
+{
+    scanner(file);
+}
 int main()
 {
-    char str[30];
     initialize();
-    return 0;
 }
