@@ -43,7 +43,7 @@ void initialize()
     while (scanf("%s",str) != EOF)
     {
         keyArr[keySum] = (char *) malloc(sizeof(char));
-        strcpy(keyArr[keySum++],str);
+        strcpy(keyArr[keySum++], str);
     }
     fclose(stdin);
     freopen("limit","r",stdin);
@@ -132,7 +132,7 @@ int createNewIden(const char * content,const char * describe,int type,int addr,i
     strcpy(temp->content, content);
     strcpy(temp->describe, describe);
     temp->type = type;
-    temp->addr = addr_temp;
+    temp->addr = addr;
     temp->line = line;
     temp->next = NULL;
     p->next = temp;

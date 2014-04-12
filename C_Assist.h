@@ -1,29 +1,21 @@
 /*
- * =====================================================================================
  *
- *       Filename:  C_Assist.h
+ *  Filename:  C_Assist.h
+ *  Created:  03/08/2014
+ *  Author:  Leo Lee , leeleo3x@gmail.com
  *
- *    Description:  The head file for C_Assist;
- *
- *        Version:  1.0
- *        Created:  03/08/2014 21:14:25
- *       Revision:  none
- *       Compiler:  watcom
- *
- *         Author:  Leo Lee (), leeleo3x@gmail.com
- *   Organization:  ZJU
- *
- * =====================================================================================
  */
 
 #include <stdio.h>
 #include <math.h>
-#include "graphics.h"
-#include <conio.h>
+//#include "graphics.h"
+//#include <conio.h>
 #include <stdlib.h>
-#include <dos.h>
+//#include <dos.h>
 #include <string.h>
 
+#define MAX_LINE_LENGTH 128
+#define MAX_LINE_SUM 500
 extern void * imagep;
 extern int mouseLeftFlag;
 

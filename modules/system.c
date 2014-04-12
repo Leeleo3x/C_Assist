@@ -1,19 +1,9 @@
 /*
- * =====================================================================================
  *
- *       Filename:  system.c
+ *  Filename:  system.c
+ *  Created:  03/09/2014 12:31:12
+ *  Author:  Leo Lee (), leeleo3x@gmail.com
  *
- *    Description:  the module for system initialization
- *
- *        Version:  1.0
- *        Created:  03/09/2014 12:31:12
- *       Revision:  none
- *       Compiler:  watcom
- *
- *         Author:  Leo Lee (), leeleo3x@gmail.com
- *   Organization:  ZJU
- *
- * =====================================================================================
  */
 #include "../C_Assist.h"
 
