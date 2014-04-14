@@ -47,3 +47,4 @@ CA
 *.hex
 
 CAnalyser/*
+*.tmp

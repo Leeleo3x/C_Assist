@@ -6,8 +6,6 @@
  */
 
 #include "../C_Assist.h"
-#include <stdio.h>
-#include <string.h>
 
 struct contentNode *contentHead = NULL;
 struct contentNode *contentTail = NULL;
@@ -22,7 +20,7 @@ struct contentNode
 struct contentNode *createNewContentNode(char * string, int len)
 {
     struct contentNode * tmp = (struct contentNode *) malloc(sizeof(struct contentNode));
-    tmp->content = (char *) malloc(sizeof(char));
+    tmp->content = (char *) malloc(sizeof(char) * strlen(string));
     strcpy(tmp->content, string);
     tmp->length = len;
     return tmp;
@@ -39,6 +37,14 @@ void addNewContentNode(struct contentNode * node)
     contentTail->next = NULL;
 }
 
+void catContent()
+{
+    struct contentNode * p = contentHead;
+    while (p != NULL) {
+        printf("%s", p->content);
+        p = p->next;
+    }
+}
 
 void indent(const char * fileName)
 {
@@ -46,6 +52,7 @@ void indent(const char * fileName)
     char line[MAX_LINE_LENGTH];
     int len,lineCount = 0;
     int bracketCount[MAX_LINE_SUM];
+
     file = fopen(fileName, "r");
     if (file == NULL) return;
     while (fgets(line , MAX_LINE_LENGTH, file) != NULL) {
@@ -80,25 +87,27 @@ void indent(const char * fileName)
         count ++;
         p = p->next;
     }
+
     fclose(file);
-    file = fopen("tmp.cpp","w");
-    
+    file = fopen("indentFile.tmp","w");
+
     int tabCount = 0, h = 0;
     p = contentHead;
     int linePos = 0;
-    char * lineContent ;
+    char * indent;
+
     while (p != NULL) {
         count = 0;
         tabCount = 0;
-        lineContent = (char *) malloc(sizeof(char));
+        indent = (char *) malloc(sizeof(char));
         char * str = p->content;
-        while(str[h] == ' ') {
-            h = count;
+        while(str[h] == ' ' || str[h] == '\t') {
             if (str[h] == ' ') {
                 count ++;
                 h++;
             } 
             else if (str[h] == '\t') {
+                tabCount ++;
                 h++;
             } 
             else {
@@ -106,34 +115,22 @@ void indent(const char * fileName)
             }
         }
         h = 0;
-        while (str[h] == '\t') {
-            if (str[h] == '\t') {
-                tabCount++;
-                h++;
-            }
-            else if (str[h] == ' ') {
-                h++;
-            }
-            else {
-                break;
-            }
-        }
+
         while (bracketCount[linePos] > 0) {
             bracketCount[linePos] --;
-            lineContent = strcat(lineContent, "    ");
+            indent = strcat(indent, TAB);
         }
         if (count == 0 && tabCount == 0) {
-            fprintf(file,"%s%s",lineContent,str);
+            fprintf(file, "%s%s", indent, str);
         } 
         else if (count > 0 || tabCount > 0) {
-            fprintf(file,"%s",lineContent);
+            fprintf(file, "%s", indent);
             len = p->length;
             i = 0;
             while (i < len - tabCount - count) {
-                fprintf(file,"%c",*(str+i+count+tabCount));
+                fprintf(file, "%c", *(str + i + count + tabCount));
                 i++;
             }
-            if (p->next != NULL) fprintf(file,"\n");
         }
         linePos ++;
         p = p->next;

@@ -16,6 +16,8 @@
 
 #define MAX_LINE_LENGTH 128
 #define MAX_LINE_SUM 500
+#define TAB "    "
+
 extern void * imagep;
 extern int mouseLeftFlag;
 
@@ -30,3 +32,6 @@ void createMouse();
 int leftPress();
 int rightPress();
 int runMouse(int *x,int *y);
+
+/*code indent module*/
+void indent(const char * fileName);
