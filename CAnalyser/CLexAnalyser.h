@@ -54,6 +54,8 @@
 //标志符
 #define IDENTIFER 40
 #define IDENTIFER_DESC "标志符"
+#define IDENTIFER_DEFINATION 41
+#define IDENTIFER_DEFINATION_DESC "声明标示符"
 
 //常量
 #define INT_VAL 51 //整形常量
@@ -151,6 +153,8 @@
 #define R_BOUNDER_ERROR_NUM 12
 #define PRE_PROCESS_ERROR "预处理错误" //头文件或者宏定义错误
 #define PRE_PROCESS_ERROR_NUM  13
+#define UNDEFINED_IDENTIFER "未定义的标示符"
+#define UNDEFINED_IDENTIFER_NUM 14
 
 #define _NULL "无"
 
@@ -166,7 +170,7 @@ struct normalNode
     int type;//种别码
     int addr;//入口地址
     int line;//所在行数
-    struct normalNode * next;//下一个节点
+    struct normalNode * next, * pre;//下一个节点
 };
 
 struct errorNode
@@ -185,7 +189,7 @@ struct identiferNode
     int type;
     int addr;
     int line;
-    struct identiferNode *next;
+    struct identiferNode * next, * pre;
 };
 
 

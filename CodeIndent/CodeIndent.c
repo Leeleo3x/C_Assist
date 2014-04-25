@@ -46,7 +46,7 @@ void catContent()
     }
 }
 
-void indent(const char * fileName)
+void codeIndent(const char * fileName)
 {
     FILE *file;
     char line[MAX_LINE_LENGTH];
@@ -140,6 +140,4 @@ void indent(const char * fileName)
 
 int main()
 {
-    indent("test.c");
-    return 0;
 }

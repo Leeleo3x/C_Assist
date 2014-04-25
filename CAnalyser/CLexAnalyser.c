@@ -30,10 +30,54 @@ int leftBig = 0;
 int rightBig = 0;
 int lineBra[6][1000] ;
 int static_iden_number = 0;
+int stackDepth = 0;
 
+
+struct stackStruct
+{
+    char * identiferName;
+    int identiferType;
+    int currentDepth;
+    struct stackStruct * pre;
+};
+
+struct stackStruct * stackTail = NULL;
 struct normalNode * normalHead, * normalTail = NULL;
 struct errorNode * errorHead, * errorTail = NULL;
 struct identiferNode * idenHead, * idenTail = NULL;
+
+void stackPush(const char * identiferName, int identiferType)
+{
+    struct stackStruct * tmp;
+    tmp = (struct stackStruct *) malloc(sizeof(struct stackStruct));
+    tmp->identiferName = (char *) malloc(sizeof(char) * strlen(identiferName));
+    tmp->identiferType = identiferType;
+    tmp->currentDepth = stackDepth;
+    tmp->pre = stackTail;
+    stackTail = tmp;  
+}
+
+void stackPop()
+{
+    while (stackTail != NULL && stackTail->currentDepth > stackDepth){
+        struct stackStruct * tmp;
+        tmp = stackTail;
+        stackTail = stackTail->pre;
+        free(tmp->identiferName);
+        free(tmp);
+    }
+}
+
+int stackGetIdentiferType(const char * identiferName)
+{
+    struct stackStruct * tmp = stackTail;
+    while (tmp != NULL) {
+        if (strcmp(identiferName, tmp->identiferName) == 0) {
+            return tmp->identiferType;
+        }
+    }
+    return 0;
+}
 
 void initialize()
 {
@@ -61,6 +105,19 @@ void initialize()
         operaArr[operaSum] = (char *) malloc(sizeof(char));
         strcpy(operaArr[operaSum++],str);
     }
+
+    normalHead = (struct normalNode *) malloc(sizeof(struct normalNode));
+    errorHead = (struct errorNode *) malloc(sizeof(struct errorNode));
+    idenHead = (struct identiferNode *) malloc(sizeof(struct identiferNode));
+
+    normalHead->next = NULL;
+    normalHead->pre = NULL;
+    errorHead->next = NULL;
+    idenHead->next = NULL;
+
+    normalTail = normalHead;
+    errorTail = errorHead;
+    idenTail = idenHead;
 }
 
 void createNewNode(const char *content,const char *describe,int type,int addr,int line)
@@ -76,8 +133,8 @@ void createNewNode(const char *content,const char *describe,int type,int addr,in
         normalTail->next = temp;
         normalTail = temp;
     }
-    temp->content = (char *) malloc(sizeof(char));
-    temp->describe = (char *) malloc(sizeof(char));
+    temp->content = (char *) malloc(sizeof(char) * strlen(content));
+    temp->describe = (char *) malloc(sizeof(char) * strlen(describe));
     strcpy(temp->content, content);
     strcpy(temp->describe, describe);
     temp->type = type;
@@ -115,7 +172,7 @@ int createNewIden(const char * content,const char * describe,int type,int addr,i
     int flag = 0;
     int addr_temp = -2;
     while (p->next != NULL)
-    {
+    {   
         if (strcmp(content,p->next->content) == 0)
         {
             flag = 1;
@@ -123,12 +180,13 @@ int createNewIden(const char * content,const char * describe,int type,int addr,i
         }
         p = p->next;
     }
-    if (flag == 0)
-    {
+    if (flag == 0) {
         addr_temp = ++static_iden_number;
+    } else {
+        return addr_temp;
     }
-    temp->content = (char *) malloc(sizeof(char));
-    temp->describe = (char *) malloc(sizeof(char));
+    temp->content = (char *) malloc(sizeof(char) * strlen(content));
+    temp->describe = (char *) malloc(sizeof(char) * strlen(describe));
     strcpy(temp->content, content);
     strcpy(temp->describe, describe);
     temp->type = type;
@@ -152,6 +210,21 @@ int getCodeFromKey(char * key,char * Arr[],int sum)
     }
     if (strcmp(key,Arr[l]) == 0) return l;
     else return -1;
+}
+
+int identiferDefineCheck(struct normalNode * p)
+{
+    while (p && p->type == COMMA) p = p->pre;
+    switch (p->type) {
+        case CHAR : return CHAR;
+        case ENUM : return ENUM;
+        case FLOAT : return FLOAT;
+        case LONG : return LONG;
+        case SHORT : return SHORT;
+        case SIGNED : return SIGNED;
+        case UNSIGNED : return UNSIGNED;
+    }
+    return 0;
 }
 
 void preProcess(char * word, int line)
@@ -203,7 +276,7 @@ void preProcess(char * word, int line)
     }
 }
 
-void scanner(char * filename)
+void scanner(const char * filename)
 {
     char ch;
     char array[30];
@@ -228,14 +301,28 @@ void scanner(char * filename)
             array[i] = '\0';
             strcpy(word,array);
             seekKey = getCodeFromKey(word,keyArr,keySum);
-            if (seekKey == -1)
+            if (seekKey != -1)
             {
                 createNewNode(word,KEY_DESC,seekKey,-1,line);
             }
             else
             {
-                addr_tmp = createNewIden(word,IDENTIFER_DESC,seekKey,-1,line);
-                createNewNode(word,IDENTIFER_DESC,seekKey,addr_tmp,line);
+                int identifer = identiferDefineCheck(normalHead);
+                if (identifer) {
+                    addr_tmp = createNewIden(word, IDENTIFER_DEFINATION_DESC, identifer, -1, line);
+                    createNewNode(word, IDENTIFER_DEFINATION_DESC, identifer, addr_tmp, line);
+                    stackPush(word, identifer);
+                }
+                else {
+                    identifer = stackGetIdentiferType(word);
+                    if (identifer) {
+                        addr_tmp = createNewIden(word,IDENTIFER_DESC, identifer, -1, line);
+                        createNewNode(word, IDENTIFER_DESC, identifer, addr_tmp, line);
+                    } else {
+                        createNewNode(word, IDENTIFER_DESC, -1, -1, line);
+                        createNewError(word, UNDEFINED_IDENTIFER, UNDEFINED_IDENTIFER_NUM, line); 
+                    }
+                }
             }
             fseek(infile,-1L,SEEK_CUR);
         }
@@ -824,4 +911,21 @@ void work(char * file)
 int main()
 {
     initialize();
+    scanner("test.c");
+
+    freopen("test.out","w",stdout);
+    struct normalNode * p = normalHead;
+    for (; p; p = p->next) {
+        printf("%s %s %d %d\n", p->content,  p->describe, p->addr, p->line);
+    }
+    printf("*********\n");
+    struct errorNode * error = errorHead;
+    for (; error; error = errorHead->next) {
+        printf("%s %s %d %d\n", error->content, error->describe, error->type, error->line);
+    }
+    printf("*********\n");
+    struct identiferNode * iden = idenHead;
+    for (; iden; iden = iden->next) {
+        printf("%s %s %d %d\n", iden->content, iden->describe, iden->type, iden->line);
+    }
 }
