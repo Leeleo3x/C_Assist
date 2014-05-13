@@ -1,24 +1,9 @@
 /*
- * =====================================================================================
- *
  *       Filename:  CLexAnalyser.c
- *
  *    Description:  C Lex Analyser
- *
- *        Version:  1.0
- *        Created:  03/09/2014 17:52:00
- *       Revision:  none
- *       Compiler:  watcom
- *
  *         Author:  Leo Lee (), leeleo3x@gmail.com
- *   Organization:  ZJU
- *
- * =====================================================================================
  */
-#include "CLexAnalyser.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include "../C_Assist.h"
 
 char *keyArr[40],*limitArr[20],*operaArr[40];
 int keySum,limitSum,operaSum;
@@ -75,6 +60,7 @@ int stackGetIdentiferType(const char * identiferName)
         if (strcmp(identiferName, tmp->identiferName) == 0) {
             return tmp->identiferType;
         }
+        tmp = tmp->pre;
     }
     return 0;
 }
@@ -156,8 +142,8 @@ void createNewError(const char *content,const char *describe,int type,int line)
         errorTail->next = temp;
         errorTail = temp;
     }
-    temp->content = (char *) malloc(sizeof(char));
-    temp->describe = (char *) malloc(sizeof(char));
+    temp->content = (char *) malloc(sizeof(char) * strlen(content));
+    temp->describe = (char *) malloc(sizeof(char) * strlen(describe));
     strcpy(temp->content, content);
     strcpy(temp->describe, describe);
     temp->type = type;
@@ -197,7 +183,7 @@ int createNewIden(const char * content,const char * describe,int type,int addr,i
     return addr_temp;
 }
 
-int getCodeFromKey(char * key,char * Arr[],int sum)
+int getCodeFromKey(char * key, char * Arr[], int beginNum, int sum)
 {
     int l = 0;
     int r = sum-1;
@@ -208,7 +194,7 @@ int getCodeFromKey(char * key,char * Arr[],int sum)
         else
             r = (l+r) >> 1;
     }
-    if (strcmp(key,Arr[l]) == 0) return l;
+    if (strcmp(key,Arr[l]) == 0) return l + beginNum;
     else return -1;
 }
 
@@ -217,6 +203,8 @@ int identiferDefineCheck(struct normalNode * p)
     while (p && p->type == COMMA) p = p->pre;
     switch (p->type) {
         case CHAR : return CHAR;
+        case INT : return INT;
+        case DOUBLE : return DOUBLE;
         case ENUM : return ENUM;
         case FLOAT : return FLOAT;
         case LONG : return LONG;
@@ -300,14 +288,14 @@ void scanner(const char * filename)
             word = (char *)malloc(sizeof(char)*(i+1));
             array[i] = '\0';
             strcpy(word,array);
-            seekKey = getCodeFromKey(word,keyArr,keySum);
+            seekKey = getCodeFromKey(word, keyArr, AUTO, keySum);
             if (seekKey != -1)
             {
                 createNewNode(word,KEY_DESC,seekKey,-1,line);
             }
             else
             {
-                int identifer = identiferDefineCheck(normalHead);
+                int identifer = identiferDefineCheck(normalTail);
                 if (identifer) {
                     addr_tmp = createNewIden(word, IDENTIFER_DEFINATION_DESC, identifer, -1, line);
                     createNewNode(word, IDENTIFER_DEFINATION_DESC, identifer, addr_tmp, line);
@@ -810,12 +798,15 @@ void scanner(const char * filename)
             else if (ch == '{')
             {
                 leftBig++;
+                stackDepth ++;
                 lineBra[4][leftBig] = line;
                 createNewNode("{",CLE_OPE_DESC,L_BOUNDER,-1,line);
             }
             else if (ch == '}')
             {
                 leftBig++;
+                stackDepth--;
+                stackPop();
                 lineBra[5][rightBig] = line;
                 createNewNode("}",CLE_OPE_DESC,R_BOUNDER,-1,line);
             }
@@ -904,28 +895,11 @@ void BraMappingError()
     }
 }
 
-void work(char * file)
+void CLexAnalyser(char * file, struct normalNode * nHead, struct errorNode * eHead, struct identiferNode * iHead)
 {
     scanner(file);
+    nHead = normalHead;
+    eHead = errorHead;
+    iHead = idenHead;
 }
-int main()
-{
-    initialize();
-    scanner("test.c");
 
-    freopen("test.out","w",stdout);
-    struct normalNode * p = normalHead;
-    for (; p; p = p->next) {
-        printf("%s %s %d %d\n", p->content,  p->describe, p->addr, p->line);
-    }
-    printf("*********\n");
-    struct errorNode * error = errorHead;
-    for (; error; error = errorHead->next) {
-        printf("%s %s %d %d\n", error->content, error->describe, error->type, error->line);
-    }
-    printf("*********\n");
-    struct identiferNode * iden = idenHead;
-    for (; iden; iden = iden->next) {
-        printf("%s %s %d %d\n", iden->content, iden->describe, iden->type, iden->line);
-    }
-}

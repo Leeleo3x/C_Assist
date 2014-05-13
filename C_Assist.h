@@ -8,11 +8,12 @@
 
 #include <stdio.h>
 #include <math.h>
-//#include "graphics.h"
-//#include <conio.h>
+#include "graphics.h"
+#include <conio.h>
 #include <stdlib.h>
-//#include <dos.h>
+#include <dos.h>
 #include <string.h>
+#include "CLex/CLex.h"
 
 #define MAX_LINE_LENGTH 128
 #define MAX_LINE_SUM 500
@@ -20,6 +21,8 @@
 
 extern void * imagep;
 extern int mouseLeftFlag;
+
+const int borderWidth = 10;
 
 /* objects module */
 void GraphInit();
@@ -35,3 +38,8 @@ int runMouse(int *x,int *y);
 
 /*code indent module*/
 void indent(const char * fileName);
+
+/*CAnalyser*/
+void CLexAnalyser(char * file, struct normalNode * nHead, struct errorNode * eHead, struct identiferNode * iHead);
+
+void CodeRebuild(int beginX, int beginY, int width, int height, const char * file);

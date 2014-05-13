@@ -138,6 +138,3 @@ void codeIndent(const char * fileName)
     fclose(file);
 }
 
-int main()
-{
-}
