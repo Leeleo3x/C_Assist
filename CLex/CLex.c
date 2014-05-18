@@ -68,7 +68,7 @@ int stackGetIdentiferType(const char * identiferName)
 void initialize()
 {
     char str[30];
-    freopen("key","r",stdin);
+    freopen("./CLex/key","r",stdin);
     keySum = 0;
     while (scanf("%s",str) != EOF)
     {
@@ -76,22 +76,23 @@ void initialize()
         strcpy(keyArr[keySum++], str);
     }
     fclose(stdin);
-    freopen("limit","r",stdin);
+    freopen("./CLex/limit","r",stdin);
     limitSum = 0;
     while (scanf("%s",str) != EOF)
     {
+        
         limitArr[limitSum] = (char *) malloc(sizeof(char));
         strcpy(limitArr[limitSum++],str);
     }
     fclose(stdin);
-    freopen("opera","r",stdin);
+    freopen("./CLex/opera","r",stdin);
     operaSum = 0;
     while (scanf("%s",str) != EOF)
     {
         operaArr[operaSum] = (char *) malloc(sizeof(char));
         strcpy(operaArr[operaSum++],str);
     }
-
+    fclose(stdin);
     normalHead = (struct normalNode *) malloc(sizeof(struct normalNode));
     errorHead = (struct errorNode *) malloc(sizeof(struct errorNode));
     idenHead = (struct identiferNode *) malloc(sizeof(struct identiferNode));
@@ -275,7 +276,7 @@ void scanner(const char * filename)
     FILE * infile;
     infile = fopen(filename,"r");
     ch = fgetc(infile);
-    while (ch != EOF)
+    while (! feof(infile))
     {
         i = 0;
         if ((ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || ch == '_')
@@ -403,7 +404,7 @@ void scanner(const char * filename)
                             line++;
                         }
                         ch = fgetc(infile);
-                        if (ch == EOF)
+                        if (feof(infile))
                         {
                             createNewError(_NULL,NOTE_ERROR,NOTE_ERROR_NUM,line);
                             return ;
@@ -414,7 +415,7 @@ void scanner(const char * filename)
                     {
                         break;
                     }
-                    if (ch == EOF)
+                    if (feof(infile))
                     {
                         createNewError(_NULL,NOTE_ERROR,NOTE_ERROR_NUM,line);
                         return ;
@@ -427,7 +428,7 @@ void scanner(const char * filename)
                 while (ch != '\n')
                 {
                     ch = fgetc(infile);
-                    if (ch == EOF)
+                    if (feof(infile))
                     {
                         createNewNode(_NULL,NOTE_DESC,NOTE2,-1,line);
                         return ;
@@ -435,7 +436,7 @@ void scanner(const char * filename)
                 }
                 line ++;
                 createNewNode(_NULL,NOTE_DESC,NOTE2,-1,line);
-                if (ch == EOF)
+                if (feof(infile))
                 {
                     return ;
                 }
@@ -458,7 +459,7 @@ void scanner(const char * filename)
                     line++;
                 }
                 ch = fgetc(infile);
-                if (ch == EOF)
+                if (feof(infile))
                 {
                     createNewError(_NULL,STRING_ERROR,STRING_ERROR_NUM,line);
                     return ;
@@ -483,7 +484,7 @@ void scanner(const char * filename)
                     line++;
                 }
                 ch = fgetc(infile);
-                if (ch == EOF)
+                if (feof(infile))
                 {
                     createNewError(_NULL,CHARCONST_ERROR,CHARCONST_ERROR_NUM,line);
                     return ;
@@ -499,17 +500,21 @@ void scanner(const char * filename)
             if (ch == '\n')
             {
                 line ++;
+            } else {
+                char str[1];
+                str[0] = ch;
+                createNewNode(str, CLE_OPE_DESC, SPACE, -1, line);
             }
         }
         else
         {
-            if (ch == EOF)
+            if (feof(infile))
             {
                 return ;
             }
             else if (ch == '#')
             {
-                while (ch != '\n' && ch != EOF)
+                while (ch != '\n' && !feof(infile))
                 {
                     array[i++] = ch;
                     ch = fgetc(infile);
@@ -895,11 +900,24 @@ void BraMappingError()
     }
 }
 
-void CLexAnalyser(char * file, struct normalNode * nHead, struct errorNode * eHead, struct identiferNode * iHead)
+void CLexAnalyser(char * file, struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead)
 {
+    initialize();
     scanner(file);
-    nHead = normalHead;
-    eHead = errorHead;
-    iHead = idenHead;
+    * nHead = normalHead;
+    * eHead = errorHead;
+    * iHead = idenHead;
 }
+
+/* int main() */
+/* { */
+/*     struct normalNode * normalPoint; */
+/*     struct errorNode * errorPoint; */
+/*     struct identiferNode *idenPoint; */
+/*     char str[10] = "test.c"; */
+
+/*     printf("begin\n"); */
+/*     CLexAnalyser(str, normalPoint, errorPoint, idenPoint); */
+/*     return 0; */
+/* } */
 

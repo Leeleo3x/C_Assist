@@ -11,6 +11,7 @@ int currentX, currentY;
 int textViewPosX, textViewPosY;
 int textViewWidth, textViewHeight;
 int currentLine;
+int indentNum;
 
 void printTextWithColor(const char * text, int color);
 void printInclude();
@@ -19,9 +20,8 @@ int getColorWithType(int type);
 
 int textwidth(const char * str)
 {
-    return (strlen(str) * 5);
+    return (strlen(str) * charWidth);
 }
-
 
 void CodeRebuild(int beginX, int beginY, int width, int height, const char * file)
 {    
@@ -30,7 +30,7 @@ void CodeRebuild(int beginX, int beginY, int width, int height, const char * fil
     struct identiferNode *idenPoint;
     char str[10];
 
-    printf("%s", file);
+    indentNum = 0;
 
     textViewPosX = beginX + borderWidth;
     textViewPosY = beginY;
@@ -42,13 +42,19 @@ void CodeRebuild(int beginX, int beginY, int width, int height, const char * fil
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(beginX, beginY, beginX + borderWidth, beginY + height);
      
-    CLexAnalyser(file, normalPoint, errorPoint, idenPoint);
+    CLexAnalyser(file, &normalPoint, &errorPoint, &idenPoint);
 
+    /* while (normalPoint) { */
+    /*     printf("%s %d %d\n", normalPoint->content, normalPoint->type, normalPoint->line); */
+    /*     normalPoint = normalPoint->next; */
+    /* } */
+
+
+    normalPoint = normalPoint->next;
     currentLine = 1;
-    while (normalPoint->next) {
-        normalPoint = normalPoint->next;
+    while (normalPoint) {
         while (normalPoint->line > currentLine) {
-            currentY = currentY + 3;
+            currentY = currentY + charHeight;
             currentX = textViewPosX;
             currentLine ++;
 
@@ -57,16 +63,24 @@ void CodeRebuild(int beginX, int beginY, int width, int height, const char * fil
             itoa(currentLine, str, 10);
             outtextxy(currentX - borderWidth, currentY, str);
         }
-        if (normalPoint->type == MACRO_VAL) {
+        if (normalPoint->type == SPACE) {
+            printTextWithColor(" ", WHITE);
+        }
+        else if (normalPoint->type == MACRO_VAL) {
             printDefine();
             printTextWithColor(normalPoint->content, CYAN);
         } 
+        else if (normalPoint->type == HEADER) {
+            printInclude();
+            printTextWithColor(normalPoint->content, CYAN);
+        }
         else if (normalPoint->addr != -1) {
-            printTextWithColor(normalPoint->content, BLACK);
+            printTextWithColor(normalPoint->content, WHITE);
         }
         else {
             printTextWithColor(normalPoint->content, getColorWithType(normalPoint->type));
         }
+        normalPoint = normalPoint->next;
     }
 }
 
@@ -75,7 +89,7 @@ void printTextWithColor(const char * text, int color)
     int width = textwidth(text);
     
     if (width + currentX > textViewPosX + textViewWidth) {
-        currentY = currentY + 3;
+        currentY = currentY + charHeight;
         currentX = textViewPosX;
     }
 

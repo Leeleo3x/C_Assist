@@ -22,7 +22,9 @@
 extern void * imagep;
 extern int mouseLeftFlag;
 
-const int borderWidth = 10;
+const int borderWidth = 15;
+const int charHeight = 15;
+const int charWidth = 8;
 
 /* objects module */
 void GraphInit();
@@ -40,6 +42,6 @@ int runMouse(int *x,int *y);
 void indent(const char * fileName);
 
 /*CAnalyser*/
-void CLexAnalyser(char * file, struct normalNode * nHead, struct errorNode * eHead, struct identiferNode * iHead);
+void CLexAnalyser(char * file, struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead);
 
 void CodeRebuild(int beginX, int beginY, int width, int height, const char * file);

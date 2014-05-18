@@ -114,6 +114,7 @@
 #define SEMI 110 // ;
 #define SIN_QUE 111 // '
 #define DOU_QUE 112 // "
+#define SPACE 113
 
 #define CLE_OPE_DESC "限界符"
 
