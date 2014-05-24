@@ -900,7 +900,7 @@ void BraMappingError()
     }
 }
 
-void CLexAnalyser(char * file, struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead)
+void CLexAnalyser(const char * file, struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead)
 {
     initialize();
     scanner(file);

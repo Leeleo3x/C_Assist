@@ -13,6 +13,8 @@ int textViewWidth, textViewHeight;
 int currentLine;
 int indentNum;
 
+void printCode(int beginX, int beginY, int width, int height, struct normalNode * normalPoint);
+void printError(int beginX, int beginY,int width,int height, struct errorNode * errorPoint);
 void printTextWithColor(const char * text, int color);
 void printInclude();
 void printDefine();
@@ -23,11 +25,17 @@ int textwidth(const char * str)
     return (strlen(str) * charWidth);
 }
 
-void CodeRebuild(int beginX, int beginY, int width, int height, const char * file)
+void printContent(int beginX, int beginY, int width, int height, struct normalNode * normalPoint, struct errorNode * errorPoint) 
+{
+    int codeHeight = height * 7 / 10;
+    int errorHeight = height - codeHeight;
+    
+    printCode(beginX, beginY, width, codeHeight, normalPoint);
+    printError(beginX, beginY+codeHeight, width, errorHeight, errorPoint);
+}
+
+void printCode(int beginX, int beginY, int width, int height, struct normalNode * normalPoint)
 {    
-    struct normalNode * normalPoint;
-    struct errorNode * errorPoint;
-    struct identiferNode *idenPoint;
     char str[10];
 
     indentNum = 0;
@@ -42,7 +50,6 @@ void CodeRebuild(int beginX, int beginY, int width, int height, const char * fil
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(beginX, beginY, beginX + borderWidth, beginY + height);
      
-    CLexAnalyser(file, &normalPoint, &errorPoint, &idenPoint);
 
     /* while (normalPoint) { */
     /*     printf("%s %d %d\n", normalPoint->content, normalPoint->type, normalPoint->line); */
@@ -51,7 +58,7 @@ void CodeRebuild(int beginX, int beginY, int width, int height, const char * fil
 
 
     normalPoint = normalPoint->next;
-    currentLine = 1;
+    currentLine = 0;
     while (normalPoint) {
         while (normalPoint->line > currentLine) {
             currentY = currentY + charHeight;
@@ -82,6 +89,19 @@ void CodeRebuild(int beginX, int beginY, int width, int height, const char * fil
         }
         normalPoint = normalPoint->next;
     }
+}
+
+void printError(int beginX, int beginY,int width,int height, struct errorNode * errorPoint)
+{
+    errorPoint = errorPoint->next; 
+    currentX = beginX;
+    currentY = beginY;
+
+    while (errorPoint) {
+        printTextWithColor("error", RED);
+        printTextWithColor(errorPoint->content, WHITE);  
+        currentY = currentY + charHeight; 
+    } 
 }
 
 void printTextWithColor(const char * text, int color)
@@ -142,3 +162,5 @@ void printDefine()
 {
     printTextWithColor("#define", RED);
 }
+
+
