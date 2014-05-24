@@ -127,33 +127,33 @@
 #define HEADER_DESC "头文件"
 
 //错误类型
-#define FLOAT_ERROR "float表示错误"
+#define FLOAT_ERROR "float expression error"
 #define FLOAT_ERROR_NUM 1
-#define DOUBLE_ERROR "double表示错误"
+#define DOUBLE_ERROR "double expression error"
 #define DOUBLE_ERROR_NUM 2
-#define NOTE_ERROR "注释没有结束符"
+#define NOTE_ERROR "comments without ending"
 #define NOTE_ERROR_NUM 3
-#define STRING_ERROR "字符串常量没有结束符"
+#define STRING_ERROR "string without ending"
 #define STRING_ERROR_NUM 4
-#define CHARCONST_ERROR "字符常量没有结束符"
+#define CHARCONST_ERROR "char without ending"
 #define CHARCONST_ERROR_NUM 5
-#define CHAR_ERROR "非法字符"
+#define CHAR_ERROR "illegal charactor"
 #define CHAR_ERROR_NUM 6
-#define LEFT_BRA_ERROR "'('没有对应项"
+#define LEFT_BRA_ERROR "'('not matching"
 #define LEFT_BRA_ERROR_NUM 7
-#define RIGHT_BRA_ERROR "')'没有对应项"
+#define RIGHT_BRA_ERROR "')'not matching"
 #define RIGHT_BRA_ERROR_NUM 8
-#define LEFT_INDEX_ERROR "'['没有对应项"
+#define LEFT_INDEX_ERROR "'['not matching"
 #define LEFT_INDEX_ERROR_NUM 9
-#define RIGHT_INDEX_ERROR "']'没有对应项"
+#define RIGHT_INDEX_ERROR "']'not matching"
 #define RIGHT_INDEX_ERROR_NUM 10
-#define L_BOUNDER_ERROR "'{'没有对应项"
+#define L_BOUNDER_ERROR "'{'not matching"
 #define L_BOUNDER_ERROR_NUM 11
-#define R_BOUNDER_ERROR "'}'没有对应项"
+#define R_BOUNDER_ERROR "'}'not matching"
 #define R_BOUNDER_ERROR_NUM 12
-#define PRE_PROCESS_ERROR "预处理错误" //头文件或者宏定义错误
+#define PRE_PROCESS_ERROR "preprocessing error" //头文件或者宏定义错误
 #define PRE_PROCESS_ERROR_NUM  13
-#define UNDEFINED_IDENTIFER "未定义的标示符"
+#define UNDEFINED_IDENTIFER "undefined identifier"
 #define UNDEFINED_IDENTIFER_NUM 14
 
 #define _NULL "无"

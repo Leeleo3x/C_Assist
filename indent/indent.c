@@ -52,6 +52,12 @@ void codeIndent(const char * fileName)
     char line[MAX_LINE_LENGTH];
     int len,lineCount = 0;
     int bracketCount[MAX_LINE_SUM];
+    char * str;
+    int i, current, count;
+    struct contentNode * p;
+    int h, tabCount;
+    char * indent;
+    int linePos;
 
     file = fopen(fileName, "r");
     if (file == NULL) return;
@@ -61,11 +67,11 @@ void codeIndent(const char * fileName)
         lineCount ++;
     }
     memset(bracketCount, 0, sizeof(bracketCount));
-    int i = 0, current = 0, count = 0;
-    struct contentNode * p = contentHead;
+    i = 0, current = 0, count = 0;
+    p = contentHead;
     while (p != NULL) {
         len = p->length;
-        char * str = p->content;
+        str = p->content;
         i = 0;
         while (i <= len) {
             if (str[i] == '{') {
@@ -89,18 +95,17 @@ void codeIndent(const char * fileName)
     }
 
     fclose(file);
-    file = fopen("indentFile.tmp","w");
+    file = fopen("indent.tmp","w");
 
-    int tabCount = 0, h = 0;
+    tabCount = 0, h = 0;
     p = contentHead;
-    int linePos = 0;
-    char * indent;
+    linePos = 0;
 
     while (p != NULL) {
         count = 0;
         tabCount = 0;
         indent = (char *) malloc(sizeof(char));
-        char * str = p->content;
+        str = p->content;
         while(str[h] == ' ' || str[h] == '\t') {
             if (str[h] == ' ') {
                 count ++;

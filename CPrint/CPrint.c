@@ -93,14 +93,21 @@ void printCode(int beginX, int beginY, int width, int height, struct normalNode 
 
 void printError(int beginX, int beginY,int width,int height, struct errorNode * errorPoint)
 {
+    char str[10];
     errorPoint = errorPoint->next; 
     currentX = beginX;
     currentY = beginY;
 
     while (errorPoint) {
         printTextWithColor("error", RED);
-        printTextWithColor(errorPoint->content, WHITE);  
+        printTextWithColor("(", YELLOW);
+        itoa(errorPoint->line, str, 10);
+        printTextWithColor(str, YELLOW);
+        printTextWithColor(")", YELLOW);
+        printTextWithColor(" ", WHITE);
+        printTextWithColor(errorPoint->describe, WHITE);  
         currentY = currentY + charHeight; 
+        errorPoint = errorPoint->next;
     } 
 }
 

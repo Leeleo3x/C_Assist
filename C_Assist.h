@@ -39,10 +39,10 @@ int rightPress();
 int runMouse(int *x,int *y);
 
 /*code indent module*/
-void indent(const char * fileName);
+void codeIndent(const char * fileName);
 
 /*CAnalyser*/
-void CLexAnalyser(const char * file, struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead);
+void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead);
 
 /*Print Content*/
 void printContent(int beginX, int beginY, int width, int height, struct normalNode * normalPoint, struct errorNode * errorPoint); 
