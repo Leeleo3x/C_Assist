@@ -117,6 +117,7 @@ void createNewNode(const char *content,const char *describe,int type,int addr,in
     }
     else
     {
+        temp->pre = normalTail;
         normalTail->next = temp;
         normalTail = temp;
     }
@@ -201,7 +202,10 @@ int getCodeFromKey(char * key, char * Arr[], int beginNum, int sum)
 
 int identiferDefineCheck(struct normalNode * p)
 {
-    while (p && p->type == COMMA) p = p->pre;
+    while ((p != normalHead && p->type == COMMA) || (p != normalHead && p->type == SPACE)) 
+    {
+        p = p->pre;
+    }
     switch (p->type) {
         case CHAR : return CHAR;
         case INT : return INT;
@@ -274,570 +278,569 @@ void scanner(const char * filename)
     int line = 1;
     int seekKey;
     FILE * infile;
-    /* infile = fopen(filename,"r"); */
-    /* ch = fgetc(infile); */
-    /* while (! feof(infile)) */
-    /* { */
-    /*     printf("%c", ch); */
-    /*     i = 0; */
-    /*     if ((ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || ch == '_') */
-    /*     { */
-    /*         while ((ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || (ch>='0' && ch<='9') || ch == '_') */
-    /*         { */
-    /*             array[i++] = ch; */
-    /*             ch = fgetc(infile); */
-    /*         } */
-    /*         word = (char *)malloc(sizeof(char)*(i+1)); */
-    /*         array[i] = '\0'; */
-    /*         strcpy(word,array); */
-    /*         seekKey = getCodeFromKey(word, keyArr, AUTO, keySum); */
-    /*         if (seekKey != -1) */
-    /*         { */
-    /*             createNewNode(word,KEY_DESC,seekKey,-1,line); */
-    /*         } */
-    /*         else */
-    /*         { */
-    /*             int identifer = identiferDefineCheck(normalTail); */
-    /*             if (identifer) { */
-    /*                 addr_tmp = createNewIden(word, IDENTIFER_DEFINATION_DESC, identifer, -1, line); */
-    /*                 createNewNode(word, IDENTIFER_DEFINATION_DESC, identifer, addr_tmp, line); */
-    /*                 stackPush(word, identifer); */
-    /*             } */
-    /*             else { */
-    /*                 identifer = stackGetIdentiferType(word); */
-    /*                 if (identifer) { */
-    /*                     addr_tmp = createNewIden(word,IDENTIFER_DESC, identifer, -1, line); */
-    /*                     createNewNode(word, IDENTIFER_DESC, identifer, addr_tmp, line); */
-    /*                 } else { */
-    /*                     createNewNode(word, IDENTIFER_DESC, -1, -1, line); */
-    /*                     createNewError(word, UNDEFINED_IDENTIFER, UNDEFINED_IDENTIFER_NUM, line); */ 
-    /*                 } */
-    /*             } */
-    /*         } */
-    /*         fseek(infile,-1L,SEEK_CUR); */
-    /*     } */
-    /*     else if (ch >= '0' && ch <= '9') */
-    /*     { */
-    /*         int flag = 0; */
-    /*         int flag2 = 0; */
-    /*         while (ch >= '0' && ch <= '9') */
-    /*         { */
-    /*             array[i++] = ch; */
-    /*             ch = fgetc(infile); */
-    /*         } */
-    /*         if (ch == '.') */
-    /*         { */
-    /*             flag2 = 1; */
-    /*             array[i++] = ch; */
-    /*             ch = fgetc(infile); */
-    /*             if (ch >= '0' && ch <= '9') */
-    /*             { */
-    /*                 while (ch >= '0' && ch <= '9') */
-    /*                 { */
-    /*                     array[i++] = ch; */
-    /*                     ch = fgetc(infile); */
-    /*                 } */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 flag = 1; */
-    /*             } */
-    /*             if (ch == 'E' || ch == 'e') */
-    /*             { */
-    /*                 array[i++] = ch; */
-    /*                 ch = fgetc(infile); */
-    /*                 if (ch == '+' || ch == '-') */
-    /*                 { */
-    /*                     array[i++] = ch; */
-    /*                     ch = fgetc(infile); */
-    /*                 } */
-    /*                 if (ch >= '0' && ch <= '9') */
-    /*                 { */
-    /*                     array[i++] = ch; */
-    /*                     ch = fgetc(infile); */
-    /*                 } */
-    /*                 else */
-    /*                 { */
-    /*                     flag = 2; */
-    /*                 } */
-    /*             } */
-    /*         } */
-    /*         word = (char *) malloc(sizeof(char)*(i+1)); */
-    /*         array[i] = '\0'; */
-    /*         strcpy(word,array); */
-    /*         if (flag == 1) */
-    /*         { */
-    /*             createNewError(word,FLOAT_ERROR,FLOAT_ERROR_NUM,line); */
-    /*         } */
-    /*         else if (flag == 2) */
-    /*         { */
-    /*             createNewError(word,DOUBLE_ERROR,DOUBLE_ERROR_NUM,line); */
-    /*         } */
-    /*         else */
-    /*         { */
-    /*             if (flag2 == 0) */
-    /*             { */
-    /*                 createNewNode(word,CONSTANT_DESC,INT_VAL,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode(word,CONSTANT_DESC,FLOAT_VAL,-1,line); */
-    /*             } */
-    /*         } */
-    /*         fseek(infile,-1L,SEEK_CUR); */
-    /*     } */
-    /*     else if (ch == '/') */
-    /*     { */
-    /*         ch = fgetc(infile); */
-    /*         if (ch == '=') */
-    /*         { */
-    /*             createNewNode("/=",OPE_DESC,COMPLETE_DIV,-1,line); */
-    /*         } */
-    /*         else if (ch == '*') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             while (1) */
-    /*             { */
-    /*                 while (ch != '*') */
-    /*                 { */
-    /*                     if (ch == '\n') */
-    /*                     { */
-    /*                         line++; */
-    /*                     } */
-    /*                     ch = fgetc(infile); */
-    /*                     if (feof(infile)) */
-    /*                     { */
-    /*                         createNewError(_NULL,NOTE_ERROR,NOTE_ERROR_NUM,line); */
-    /*                         return ; */
-    /*                     } */
-    /*                 } */
-    /*                 ch = fgetc(infile); */
-    /*                 if (ch == '/') */
-    /*                 { */
-    /*                     break; */
-    /*                 } */
-    /*                 if (feof(infile)) */
-    /*                 { */
-    /*                     createNewError(_NULL,NOTE_ERROR,NOTE_ERROR_NUM,line); */
-    /*                     return ; */
-    /*                 } */
-    /*             } */
-    /*             createNewNode(_NULL,NOTE_DESC,NOTE1,-1,line); */
-    /*         } */
-    /*         else if (ch == '/') */
-    /*         { */
-    /*             while (ch != '\n') */
-    /*             { */
-    /*                 ch = fgetc(infile); */
-    /*                 if (feof(infile)) */
-    /*                 { */
-    /*                     createNewNode(_NULL,NOTE_DESC,NOTE2,-1,line); */
-    /*                     return ; */
-    /*                 } */
-    /*             } */
-    /*             line ++; */
-    /*             createNewNode(_NULL,NOTE_DESC,NOTE2,-1,line); */
-    /*             if (feof(infile)) */
-    /*             { */
-    /*                 return ; */
-    /*             } */
-    /*         } */
-    /*         else */
-    /*         { */
-    /*             createNewNode("/",OPE_DESC,DIV,-1,line); */
-    /*         } */
-    /*     } */
-    /*     else if (ch == '"') */
-    /*     { */
-    /*         createNewNode("\"",CLE_OPE_DESC,DOU_QUE,-1,line); */
-    /*         ch = fgetc(infile); */
-    /*         i = 0; */
-    /*         while (ch != '"') */
-    /*         { */
-    /*             array[i++] = ch; */
-    /*             if (ch == '\n') */
-    /*             { */
-    /*                 line++; */
-    /*             } */
-    /*             ch = fgetc(infile); */
-    /*             if (feof(infile)) */
-    /*             { */
-    /*                 createNewError(_NULL,STRING_ERROR,STRING_ERROR_NUM,line); */
-    /*                 return ; */
-    /*             } */
-    /*         } */
-    /*         word = (char *) malloc(sizeof(char)*(i+1)); */
-    /*         array[i] = '\0'; */
-    /*         strcpy(word,array); */
-    /*         createNewNode(word,CONSTANT_DESC,STRING_VAL,-1,line); */
-    /*         createNewNode("\"",CLE_OPE_DESC,DOU_QUE,-1,line); */
-    /*     } */
-    /*     else if (ch == '\'') */
-    /*     { */
-    /*         createNewNode("\'",CLE_OPE_DESC,SIN_QUE,-1,line); */
-    /*         ch = fgetc(infile); */
-    /*         i = 0; */
-    /*         while (ch != '\'') */
-    /*         { */
-    /*             array[i++] = ch; */
-    /*             if (ch == '\n') */
-    /*             { */
-    /*                 line++; */
-    /*             } */
-    /*             ch = fgetc(infile); */
-    /*             if (feof(infile)) */
-    /*             { */
-    /*                 createNewError(_NULL,CHARCONST_ERROR,CHARCONST_ERROR_NUM,line); */
-    /*                 return ; */
-    /*             } */
-    /*         } */
-    /*         word = (char *) malloc(sizeof(char) * (i+1)); */
-    /*         array[i] = '\0'; */
-    /*         createNewNode(word,CONSTANT_DESC,CHAR_VAL,-1,line); */
-    /*         createNewNode("\'",CLE_OPE_DESC,SIN_QUE,-1,line); */
-    /*     } */
-    /*     else if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n') */
-    /*     { */
-    /*         if (ch == '\n') */
-    /*         { */
-    /*             line ++; */
-    /*         } else { */
-    /*             char str[1]; */
-    /*             str[0] = ch; */
-    /*             createNewNode(str, CLE_OPE_DESC, SPACE, -1, line); */
-    /*         } */
-    /*     } */
-    /*     else */
-    /*     { */
-    /*         if (feof(infile)) */
-    /*         { */
-    /*             return ; */
-    /*         } */
-    /*         else if (ch == '#') */
-    /*         { */
-    /*             while (ch != '\n' && !feof(infile)) */
-    /*             { */
-    /*                 array[i++] = ch; */
-    /*                 ch = fgetc(infile); */
-    /*             } */
-    /*             word = (char *)malloc(sizeof(char)*(i+1)); */
-    /*             array[i] = '\0'; */
-    /*             strcpy(word,array); */
-    /*             preProcess(word,line); */
-    /*             fseek(infile,-1L,SEEK_CUR); */
-    /*         } */
-    /*         else if (ch == '-') */
-    /*         { */
-    /*             array[i++] = ch; */
-    /*             ch = fgetc(infile); */
-    /*             if (ch >= '0' && ch <= '9') */
-    /*             { */
-    /*                 int flag = 0; */
-    /*                 int flag2 = 0; */
-    /*                 while (ch>='0' && ch<='9') */
-    /*                 { */
-    /*                     array[i++] = ch; */
-    /*                     ch = fgetc(infile); */
-    /*                 } */
-    /*                 if (ch == '.') */
-    /*                 { */
-    /*                     flag2 = 1; */
-    /*                     array[i++] = ch; */
-    /*                     ch = fgetc(infile); */
-    /*                     if (ch >= '0' && ch <= '9') */
-    /*                     { */
-    /*                         while (ch >= '0' && ch <= '9') */
-    /*                         { */
-    /*                             array[i++] = ch; */
-    /*                             ch = fgetc(infile); */
-    /*                         } */
-    /*                     } */
-    /*                     else */
-    /*                     { */
-    /*                         flag = 1; */
-    /*                     } */
-    /*                     if (ch == 'E' || ch == 'e') */
-    /*                     { */
-    /*                         array[i++] = ch; */
-    /*                         ch = fgetc(infile); */
-    /*                         if (ch == '+' || ch == '-') */
-    /*                         { */
-    /*                             array[i++] = ch; */
-    /*                             ch = fgetc(infile); */
-    /*                         } */
-    /*                         if (ch >= '0' && ch <= '9') */
-    /*                         { */
-    /*                             array[i++] = ch; */
-    /*                             ch = fgetc(infile); */
-    /*                         } */
-    /*                         else */
-    /*                         { */
-    /*                             flag = 2; */
-    /*                         } */
-    /*                     } */
-    /*                 } */
-    /*                 word = (char *) malloc(sizeof(char) * (i+1)); */
-    /*                 array[i] = '\0'; */
-    /*                 strcpy(word,array); */
-    /*                 if (flag == 1) */
-    /*                 { */
-    /*                     createNewError(word,FLOAT_ERROR,FLOAT_ERROR_NUM,line); */
-    /*                 } */
-    /*                 else if (flag == 2) */
-    /*                 { */
-    /*                     createNewError(word,DOUBLE_ERROR,DOUBLE_ERROR_NUM,line); */
-    /*                 } */
-    /*                 else */
-    /*                 { */
-    /*                     if (flag == 0) */
-    /*                     { */
-    /*                         createNewNode(word,CONSTANT_DESC,INT_VAL,-1,line); */
-    /*                     } */
-    /*                     else */
-    /*                     { */
-    /*                         createNewNode(word,CONSTANT_DESC,FLOAT_VAL,-1,line); */
-    /*                     } */
-    /*                 } */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*             else if (ch == '>') */
-    /*             { */
-    /*                 createNewNode("->",OPE_DESC,ARROW,-1,line); */
-    /*             } */
-    /*             else if (ch == '-') */
-    /*             { */
-    /*                 createNewNode("--",OPE_DESC,SELF_SUB,-1,line); */
-    /*             } */
-    /*             else if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("--",OPE_DESC,SELF_SUB,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("-",OPE_DESC,SUB,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '+') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '+') */
-    /*             { */
-    /*                 createNewNode("++",OPE_DESC,SELF_ADD,-1,line); */
-    /*             } */
-    /*             else if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("+=",OPE_DESC,COMPLETE_ADD,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("+",OPE_DESC,ADD,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '*') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("*=",OPE_DESC,COMPLETE_MUL,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("*",OPE_DESC,MUL,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '^') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("^=",OPE_DESC,COMPLETE_BYTE_XOR,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("^",OPE_DESC,BYTE_XOR,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '%') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("%=",OPE_DESC,COMPLETE_MOD,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("%",OPE_DESC,MOD,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '&') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("&=",OPE_DESC,COMPLETE_BYTE_AND,-1,line); */
-    /*             } */
-    /*             else if (ch == '&') */
-    /*             { */
-    /*                 createNewNode("&&",OPE_DESC,AND,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("&",OPE_DESC,BYTE_AND,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '~') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("~=",OPE_DESC,COMPLETE_COMPLEMENT,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("~",OPE_DESC,COMPLEMENT,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '!') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("!=",OPE_DESC,NOT_EQUAL,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("!",OPE_DESC,NOT,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '<') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '<') */
-    /*             { */
-    /*                 createNewNode("<<",OPE_DESC,LEFT_MOVE,-1,line); */
-    /*             } */
-    /*             else if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("<=",OPE_DESC,LES_EQUAL,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("<",OPE_DESC,LES_THAN,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '>') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '>') */
-    /*             { */
-    /*                 createNewNode(">>",OPE_DESC,RIGHT_MOVE,-1,line); */
-    /*             } */
-    /*             else if (ch == '=') */
-    /*             { */
-    /*                 createNewNode(">=",OPE_DESC,GRT_EQUAL,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode(">",OPE_DESC,GRT_THAN,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '|') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '|') */
-    /*             { */
-    /*                 createNewNode("||",OPE_DESC,OR,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("|",OPE_DESC,BYTE_OR,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '=') */
-    /*         { */
-    /*             ch = fgetc(infile); */
-    /*             if (ch == '=') */
-    /*             { */
-    /*                 createNewNode("==",OPE_DESC,EQUAL,-1,line); */
-    /*             } */
-    /*             else */
-    /*             { */
-    /*                 createNewNode("=",OPE_DESC,ASG,-1,line); */
-    /*                 fseek(infile,-1L,SEEK_CUR); */
-    /*             } */
-    /*         } */
-    /*         else if (ch == '(') */
-    /*         { */
-    /*             leftSmall++; */
-    /*             lineBra[0][leftSmall] = line; */
-    /*             createNewNode("(",CLE_OPE_DESC,LEFT_BRA,-1,line); */
-    /*         } */
-    /*         else if (ch == ')') */
-    /*         { */
-    /*             rightSmall++; */
-    /*             lineBra[1][rightSmall] = line; */
-    /*             createNewNode(")",CLE_OPE_DESC,RIGHT_BRA,-1,line); */
-    /*         } */
-    /*         else if (ch == '[') */
-    /*         { */
-    /*             leftMiddle++; */
-    /*             lineBra[2][leftMiddle] = line; */
-    /*             createNewNode("[",CLE_OPE_DESC,LEFT_INDEX,-1,line); */
-    /*         } */
-    /*         else if (ch == ']') */
-    /*         { */
-    /*             leftMiddle++; */
-    /*             lineBra[3][rightMiddle] = line; */
-    /*             createNewNode("]",CLE_OPE_DESC,RIGHT_INDEX,-1,line); */
-    /*         } */
-    /*         else if (ch == '{') */
-    /*         { */
-    /*             leftBig++; */
-    /*             stackDepth ++; */
-    /*             lineBra[4][leftBig] = line; */
-    /*             createNewNode("{",CLE_OPE_DESC,L_BOUNDER,-1,line); */
-    /*         } */
-    /*         else if (ch == '}') */
-    /*         { */
-    /*             leftBig++; */
-    /*             stackDepth--; */
-    /*             stackPop(); */
-    /*             lineBra[5][rightBig] = line; */
-    /*             createNewNode("}",CLE_OPE_DESC,R_BOUNDER,-1,line); */
-    /*         } */
-    /*         else if (ch == '.') */
-    /*         { */
-    /*             createNewNode(".",CLE_OPE_DESC,POINTER,-1,line); */
-    /*         } */
-    /*         else if (ch == ',') */
-    /*         { */
-    /*             createNewNode(",",CLE_OPE_DESC,COMMA,-1,line); */
-    /*         } */
-    /*         else if (ch == ';') */
-    /*         { */
-    /*             createNewNode(";",CLE_OPE_DESC,SEMI,-1,line); */
-    /*         } */
-    /*         else */
-    /*         { */
-    /*             char temp[2]; */
-    /*             temp[0] = ch; */
-    /*             temp[1] = '\0'; */
-    /*             createNewError(temp,CHAR_ERROR,CHAR_ERROR_NUM,line); */
-    /*         } */
-    /*     } */
-    /*     ch = fgetc(infile); */
-    /* } */
+    infile = fopen(filename,"r");
+    ch = fgetc(infile);
+    while (! feof(infile))
+    {
+        i = 0;
+        if ((ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || ch == '_')
+        {
+            while ((ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || (ch>='0' && ch<='9') || ch == '_')
+            {
+                array[i++] = ch;
+                ch = fgetc(infile);
+            }
+            word = (char *)malloc(sizeof(char)*(i+1));
+            array[i] = '\0';
+            strcpy(word,array);
+            seekKey = getCodeFromKey(word, keyArr, AUTO, keySum);
+            if (seekKey != -1)
+            {
+                createNewNode(word,KEY_DESC,seekKey,-1,line);
+            }
+            else
+            {
+                int identifer = identiferDefineCheck(normalTail);
+                if (identifer) {
+                    addr_tmp = createNewIden(word, IDENTIFER_DEFINATION_DESC, identifer, -1, line);
+                    createNewNode(word, IDENTIFER_DEFINATION_DESC, identifer, addr_tmp, line);
+                    stackPush(word, identifer);
+                }
+                else {
+                    identifer = stackGetIdentiferType(word);
+                    if (identifer) {
+                        addr_tmp = createNewIden(word,IDENTIFER_DESC, identifer, -1, line);
+                        createNewNode(word, IDENTIFER_DESC, identifer, addr_tmp, line);
+                    } else {
+                        createNewNode(word, IDENTIFER_DESC, -1, -1, line);
+                        createNewError(word, UNDEFINED_IDENTIFER, UNDEFINED_IDENTIFER_NUM, line); 
+                    }
+                }
+            }
+            fseek(infile,-1L,SEEK_CUR);
+        }
+        else if (ch >= '0' && ch <= '9')
+        {
+            int flag = 0;
+            int flag2 = 0;
+            while (ch >= '0' && ch <= '9')
+            {
+                array[i++] = ch;
+                ch = fgetc(infile);
+            }
+            if (ch == '.')
+            {
+                flag2 = 1;
+                array[i++] = ch;
+                ch = fgetc(infile);
+                if (ch >= '0' && ch <= '9')
+                {
+                    while (ch >= '0' && ch <= '9')
+                    {
+                        array[i++] = ch;
+                        ch = fgetc(infile);
+                    }
+                }
+                else
+                {
+                    flag = 1;
+                }
+                if (ch == 'E' || ch == 'e')
+                {
+                    array[i++] = ch;
+                    ch = fgetc(infile);
+                    if (ch == '+' || ch == '-')
+                    {
+                        array[i++] = ch;
+                        ch = fgetc(infile);
+                    }
+                    if (ch >= '0' && ch <= '9')
+                    {
+                        array[i++] = ch;
+                        ch = fgetc(infile);
+                    }
+                    else
+                    {
+                        flag = 2;
+                    }
+                }
+            }
+            word = (char *) malloc(sizeof(char)*(i+1));
+            array[i] = '\0';
+            strcpy(word,array);
+            if (flag == 1)
+            {
+                createNewError(word,FLOAT_ERROR,FLOAT_ERROR_NUM,line);
+            }
+            else if (flag == 2)
+            {
+                createNewError(word,DOUBLE_ERROR,DOUBLE_ERROR_NUM,line);
+            }
+            else
+            {
+                if (flag2 == 0)
+                {
+                    createNewNode(word,CONSTANT_DESC,INT_VAL,-1,line);
+                }
+                else
+                {
+                    createNewNode(word,CONSTANT_DESC,FLOAT_VAL,-1,line);
+                }
+            }
+            fseek(infile,-1L,SEEK_CUR);
+        }
+        else if (ch == '/')
+        {
+            ch = fgetc(infile);
+            if (ch == '=')
+            {
+                createNewNode("/=",OPE_DESC,COMPLETE_DIV,-1,line);
+            }
+            else if (ch == '*')
+            {
+                ch = fgetc(infile);
+                while (1)
+                {
+                    while (ch != '*')
+                    {
+                        if (ch == '\n')
+                        {
+                            line++;
+                        }
+                        ch = fgetc(infile);
+                        if (feof(infile))
+                        {
+                            createNewError(_NULL,NOTE_ERROR,NOTE_ERROR_NUM,line);
+                            return ;
+                        }
+                    }
+                    ch = fgetc(infile);
+                    if (ch == '/')
+                    {
+                        break;
+                    }
+                    if (feof(infile))
+                    {
+                        createNewError(_NULL,NOTE_ERROR,NOTE_ERROR_NUM,line);
+                        return ;
+                    }
+                }
+                createNewNode(_NULL,NOTE_DESC,NOTE1,-1,line);
+            }
+            else if (ch == '/')
+            {
+                while (ch != '\n')
+                {
+                    ch = fgetc(infile);
+                    if (feof(infile))
+                    {
+                        createNewNode(_NULL,NOTE_DESC,NOTE2,-1,line);
+                        return ;
+                    }
+                }
+                line ++;
+                createNewNode(_NULL,NOTE_DESC,NOTE2,-1,line);
+                if (feof(infile))
+                {
+                    return ;
+                }
+            }
+            else
+            {
+                createNewNode("/",OPE_DESC,DIV,-1,line);
+            }
+        }
+        else if (ch == '"')
+        {
+            createNewNode("\"",CLE_OPE_DESC,DOU_QUE,-1,line);
+            ch = fgetc(infile);
+            i = 0;
+            while (ch != '"')
+            {
+                array[i++] = ch;
+                if (ch == '\n')
+                {
+                    line++;
+                }
+                ch = fgetc(infile);
+                if (feof(infile))
+                {
+                    createNewError(_NULL,STRING_ERROR,STRING_ERROR_NUM,line);
+                    return ;
+                }
+            }
+            word = (char *) malloc(sizeof(char)*(i+1));
+            array[i] = '\0';
+            strcpy(word,array);
+            createNewNode(word,CONSTANT_DESC,STRING_VAL,-1,line);
+            createNewNode("\"",CLE_OPE_DESC,DOU_QUE,-1,line);
+        }
+        else if (ch == '\'')
+        {
+            createNewNode("\'",CLE_OPE_DESC,SIN_QUE,-1,line);
+            ch = fgetc(infile);
+            i = 0;
+            while (ch != '\'')
+            {
+                array[i++] = ch;
+                if (ch == '\n')
+                {
+                    line++;
+                }
+                ch = fgetc(infile);
+                if (feof(infile))
+                {
+                    createNewError(_NULL,CHARCONST_ERROR,CHARCONST_ERROR_NUM,line);
+                    return ;
+                }
+            }
+            word = (char *) malloc(sizeof(char) * (i+1));
+            array[i] = '\0';
+            createNewNode(word,CONSTANT_DESC,CHAR_VAL,-1,line);
+            createNewNode("\'",CLE_OPE_DESC,SIN_QUE,-1,line);
+        }
+        else if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n')
+        {
+            if (ch == '\n')
+            {
+                line ++;
+            } else {
+                char str[1];
+                str[0] = ch;
+                createNewNode(str, CLE_OPE_DESC, SPACE, -1, line);
+            }
+        }
+        else
+        {
+            if (feof(infile))
+            {
+                return ;
+            }
+            else if (ch == '#')
+            {
+                while (ch != '\n' && !feof(infile))
+                {
+                    array[i++] = ch;
+                    ch = fgetc(infile);
+                }
+                word = (char *)malloc(sizeof(char)*(i+1));
+                array[i] = '\0';
+                strcpy(word,array);
+                preProcess(word,line);
+                fseek(infile,-1L,SEEK_CUR);
+            }
+            else if (ch == '-')
+            {
+                array[i++] = ch;
+                ch = fgetc(infile);
+                if (ch >= '0' && ch <= '9')
+                {
+                    int flag = 0;
+                    int flag2 = 0;
+                    while (ch>='0' && ch<='9')
+                    {
+                        array[i++] = ch;
+                        ch = fgetc(infile);
+                    }
+                    if (ch == '.')
+                    {
+                        flag2 = 1;
+                        array[i++] = ch;
+                        ch = fgetc(infile);
+                        if (ch >= '0' && ch <= '9')
+                        {
+                            while (ch >= '0' && ch <= '9')
+                            {
+                                array[i++] = ch;
+                                ch = fgetc(infile);
+                            }
+                        }
+                        else
+                        {
+                            flag = 1;
+                        }
+                        if (ch == 'E' || ch == 'e')
+                        {
+                            array[i++] = ch;
+                            ch = fgetc(infile);
+                            if (ch == '+' || ch == '-')
+                            {
+                                array[i++] = ch;
+                                ch = fgetc(infile);
+                            }
+                            if (ch >= '0' && ch <= '9')
+                            {
+                                array[i++] = ch;
+                                ch = fgetc(infile);
+                            }
+                            else
+                            {
+                                flag = 2;
+                            }
+                        }
+                    }
+                    word = (char *) malloc(sizeof(char) * (i+1));
+                    array[i] = '\0';
+                    strcpy(word,array);
+                    if (flag == 1)
+                    {
+                        createNewError(word,FLOAT_ERROR,FLOAT_ERROR_NUM,line);
+                    }
+                    else if (flag == 2)
+                    {
+                        createNewError(word,DOUBLE_ERROR,DOUBLE_ERROR_NUM,line);
+                    }
+                    else
+                    {
+                        if (flag == 0)
+                        {
+                            createNewNode(word,CONSTANT_DESC,INT_VAL,-1,line);
+                        }
+                        else
+                        {
+                            createNewNode(word,CONSTANT_DESC,FLOAT_VAL,-1,line);
+                        }
+                    }
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+                else if (ch == '>')
+                {
+                    createNewNode("->",OPE_DESC,ARROW,-1,line);
+                }
+                else if (ch == '-')
+                {
+                    createNewNode("--",OPE_DESC,SELF_SUB,-1,line);
+                }
+                else if (ch == '=')
+                {
+                    createNewNode("--",OPE_DESC,SELF_SUB,-1,line);
+                }
+                else
+                {
+                    createNewNode("-",OPE_DESC,SUB,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '+')
+            {
+                ch = fgetc(infile);
+                if (ch == '+')
+                {
+                    createNewNode("++",OPE_DESC,SELF_ADD,-1,line);
+                }
+                else if (ch == '=')
+                {
+                    createNewNode("+=",OPE_DESC,COMPLETE_ADD,-1,line);
+                }
+                else
+                {
+                    createNewNode("+",OPE_DESC,ADD,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '*')
+            {
+                ch = fgetc(infile);
+                if (ch == '=')
+                {
+                    createNewNode("*=",OPE_DESC,COMPLETE_MUL,-1,line);
+                }
+                else
+                {
+                    createNewNode("*",OPE_DESC,MUL,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '^')
+            {
+                ch = fgetc(infile);
+                if (ch == '=')
+                {
+                    createNewNode("^=",OPE_DESC,COMPLETE_BYTE_XOR,-1,line);
+                }
+                else
+                {
+                    createNewNode("^",OPE_DESC,BYTE_XOR,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '%')
+            {
+                ch = fgetc(infile);
+                if (ch == '=')
+                {
+                    createNewNode("%=",OPE_DESC,COMPLETE_MOD,-1,line);
+                }
+                else
+                {
+                    createNewNode("%",OPE_DESC,MOD,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '&')
+            {
+                ch = fgetc(infile);
+                if (ch == '=')
+                {
+                    createNewNode("&=",OPE_DESC,COMPLETE_BYTE_AND,-1,line);
+                }
+                else if (ch == '&')
+                {
+                    createNewNode("&&",OPE_DESC,AND,-1,line);
+                }
+                else
+                {
+                    createNewNode("&",OPE_DESC,BYTE_AND,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '~')
+            {
+                ch = fgetc(infile);
+                if (ch == '=')
+                {
+                    createNewNode("~=",OPE_DESC,COMPLETE_COMPLEMENT,-1,line);
+                }
+                else
+                {
+                    createNewNode("~",OPE_DESC,COMPLEMENT,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '!')
+            {
+                ch = fgetc(infile);
+                if (ch == '=')
+                {
+                    createNewNode("!=",OPE_DESC,NOT_EQUAL,-1,line);
+                }
+                else
+                {
+                    createNewNode("!",OPE_DESC,NOT,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '<')
+            {
+                ch = fgetc(infile);
+                if (ch == '<')
+                {
+                    createNewNode("<<",OPE_DESC,LEFT_MOVE,-1,line);
+                }
+                else if (ch == '=')
+                {
+                    createNewNode("<=",OPE_DESC,LES_EQUAL,-1,line);
+                }
+                else
+                {
+                    createNewNode("<",OPE_DESC,LES_THAN,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '>')
+            {
+                ch = fgetc(infile);
+                if (ch == '>')
+                {
+                    createNewNode(">>",OPE_DESC,RIGHT_MOVE,-1,line);
+                }
+                else if (ch == '=')
+                {
+                    createNewNode(">=",OPE_DESC,GRT_EQUAL,-1,line);
+                }
+                else
+                {
+                    createNewNode(">",OPE_DESC,GRT_THAN,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '|')
+            {
+                ch = fgetc(infile);
+                if (ch == '|')
+                {
+                    createNewNode("||",OPE_DESC,OR,-1,line);
+                }
+                else
+                {
+                    createNewNode("|",OPE_DESC,BYTE_OR,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '=')
+            {
+                ch = fgetc(infile);
+                if (ch == '=')
+                {
+                    createNewNode("==",OPE_DESC,EQUAL,-1,line);
+                }
+                else
+                {
+                    createNewNode("=",OPE_DESC,ASG,-1,line);
+                    fseek(infile,-1L,SEEK_CUR);
+                }
+            }
+            else if (ch == '(')
+            {
+                leftSmall++;
+                lineBra[0][leftSmall] = line;
+                createNewNode("(",CLE_OPE_DESC,LEFT_BRA,-1,line);
+            }
+            else if (ch == ')')
+            {
+                rightSmall++;
+                lineBra[1][rightSmall] = line;
+                createNewNode(")",CLE_OPE_DESC,RIGHT_BRA,-1,line);
+            }
+            else if (ch == '[')
+            {
+                leftMiddle++;
+                lineBra[2][leftMiddle] = line;
+                createNewNode("[",CLE_OPE_DESC,LEFT_INDEX,-1,line);
+            }
+            else if (ch == ']')
+            {
+                leftMiddle++;
+                lineBra[3][rightMiddle] = line;
+                createNewNode("]",CLE_OPE_DESC,RIGHT_INDEX,-1,line);
+            }
+            else if (ch == '{')
+            {
+                leftBig++;
+                stackDepth ++;
+                lineBra[4][leftBig] = line;
+                createNewNode("{",CLE_OPE_DESC,L_BOUNDER,-1,line);
+            }
+            else if (ch == '}')
+            {
+                leftBig++;
+                stackDepth--;
+                stackPop();
+                lineBra[5][rightBig] = line;
+                createNewNode("}",CLE_OPE_DESC,R_BOUNDER,-1,line);
+            }
+            else if (ch == '.')
+            {
+                createNewNode(".",CLE_OPE_DESC,POINTER,-1,line);
+            }
+            else if (ch == ',')
+            {
+                createNewNode(",",CLE_OPE_DESC,COMMA,-1,line);
+            }
+            else if (ch == ';')
+            {
+                createNewNode(";",CLE_OPE_DESC,SEMI,-1,line);
+            }
+            else
+            {
+                char temp[2];
+                temp[0] = ch;
+                temp[1] = '\0';
+                createNewError(temp,CHAR_ERROR,CHAR_ERROR_NUM,line);
+            }
+        }
+        ch = fgetc(infile);
+    }
 }
 
 void BraMappingError()
@@ -906,7 +909,6 @@ void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** e
     initialize();
     scanner(file);
     /* printf("%s", file); */
-    exit(0);
     * nHead = normalHead;
     * eHead = errorHead;
     * iHead = idenHead;
@@ -917,12 +919,10 @@ void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** e
 /*     struct normalNode * normalPoint; */
 /*     struct errorNode * errorPoint; */
 /*     struct identiferNode *idenPoint; */
+/*     char file[50] = "../INDENT.TMP"; */
 
 /*     printf("begin\n"); */
-/*     CLexAnalyser("../indent/indentFile.tmp", &normalPoint, &errorPoint, &idenPoint); */
-/*     while (normalPoint) { */
-/*         printf("%s", normalPoint->content); */
-/*     } */
+/*     CLexAnalyser(file, &normalPoint, &errorPoint, &idenPoint); */
 
 /*     return 0; */
 /* } */

@@ -56,7 +56,7 @@ void codeIndent(const char * fileName)
     int i, current, count;
     struct contentNode * p;
     int h, tabCount;
-    char * indent;
+    char indent[100];
     int linePos;
 
     file = fopen(fileName, "r");
@@ -104,8 +104,8 @@ void codeIndent(const char * fileName)
     while (p != NULL) {
         count = 0;
         tabCount = 0;
-        indent = (char *) malloc(sizeof(char));
         str = p->content;
+        indent[0] = '\0';
         while(str[h] == ' ' || str[h] == '\t') {
             if (str[h] == ' ') {
                 count ++;
@@ -123,7 +123,7 @@ void codeIndent(const char * fileName)
 
         while (bracketCount[linePos] > 0) {
             bracketCount[linePos] --;
-            indent = strcat(indent, TAB);
+            strcpy(indent, strcat(indent, TAB));
         }
         if (count == 0 && tabCount == 0) {
             fprintf(file, "%s%s", indent, str);

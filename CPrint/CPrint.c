@@ -107,6 +107,7 @@ void printError(int beginX, int beginY,int width,int height, struct errorNode * 
         printTextWithColor(" ", WHITE);
         printTextWithColor(errorPoint->describe, WHITE);  
         currentY = currentY + charHeight; 
+        currentX = beginX;
         errorPoint = errorPoint->next;
     } 
 }
