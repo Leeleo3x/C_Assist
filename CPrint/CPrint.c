@@ -50,13 +50,6 @@ void printCode(int beginX, int beginY, int width, int height, struct normalNode 
     setfillstyle(SOLID_FILL, LIGHTGRAY);
     bar(beginX, beginY, beginX + borderWidth, beginY + height);
      
-
-    /* while (normalPoint) { */
-    /*     printf("%s %d %d\n", normalPoint->content, normalPoint->type, normalPoint->line); */
-    /*     normalPoint = normalPoint->next; */
-    /* } */
-
-
     normalPoint = normalPoint->next;
     currentLine = 0;
     while (normalPoint) {
@@ -170,5 +163,4 @@ void printDefine()
 {
     printTextWithColor("#define", RED);
 }
-
 
