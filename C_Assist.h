@@ -43,6 +43,8 @@ void codeIndent(const char * fileName);
 
 /*CAnalyser*/
 void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead);
+int getStyleMark();
 
 /*Print Content*/
 void printContent(int beginX, int beginY, int width, int height, struct normalNode * normalPoint, struct errorNode * errorPoint); 
+

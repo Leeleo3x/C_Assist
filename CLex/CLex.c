@@ -16,6 +16,8 @@ int rightBig = 0;
 int lineBra[6][1000] ;
 int static_iden_number = 0;
 int stackDepth = 0;
+int styleMark = 100;
+int line = 1;
 
 
 struct stackStruct
@@ -30,6 +32,9 @@ struct stackStruct * stackTail = NULL;
 struct normalNode * normalHead, * normalTail = NULL;
 struct errorNode * errorHead, * errorTail = NULL;
 struct identiferNode * idenHead, * idenTail = NULL;
+
+void spaceCheck();
+void newLineStyleCheck();
 
 void stackPush(const char * identiferName, int identiferType)
 {
@@ -151,6 +156,8 @@ void createNewError(const char *content,const char *describe,int type,int line)
     temp->type = type;
     temp->line = line;
     temp->next = NULL;
+
+    styleMark -= 5;
 }
 
 int createNewIden(const char * content,const char * describe,int type,int addr,int line)
@@ -275,7 +282,6 @@ void scanner(const char * filename)
     char array[30];
     char * word;
     int i,addr_tmp;
-    int line = 1;
     int seekKey;
     FILE * infile;
     infile = fopen(filename,"r");
@@ -391,6 +397,7 @@ void scanner(const char * filename)
         }
         else if (ch == '/')
         {
+            spaceCheck();
             ch = fgetc(infile);
             if (ch == '=')
             {
@@ -531,6 +538,7 @@ void scanner(const char * filename)
             }
             else if (ch == '-')
             {
+                spaceCheck();
                 array[i++] = ch;
                 ch = fgetc(infile);
                 if (ch >= '0' && ch <= '9')
@@ -623,6 +631,7 @@ void scanner(const char * filename)
             }
             else if (ch == '+')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '+')
                 {
@@ -640,6 +649,7 @@ void scanner(const char * filename)
             }
             else if (ch == '*')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '=')
                 {
@@ -653,6 +663,7 @@ void scanner(const char * filename)
             }
             else if (ch == '^')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '=')
                 {
@@ -666,6 +677,7 @@ void scanner(const char * filename)
             }
             else if (ch == '%')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '=')
                 {
@@ -679,6 +691,7 @@ void scanner(const char * filename)
             }
             else if (ch == '&')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '=')
                 {
@@ -696,6 +709,7 @@ void scanner(const char * filename)
             }
             else if (ch == '~')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '=')
                 {
@@ -709,6 +723,7 @@ void scanner(const char * filename)
             }
             else if (ch == '!')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '=')
                 {
@@ -722,6 +737,7 @@ void scanner(const char * filename)
             }
             else if (ch == '<')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '<')
                 {
@@ -739,6 +755,7 @@ void scanner(const char * filename)
             }
             else if (ch == '>')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '>')
                 {
@@ -756,6 +773,7 @@ void scanner(const char * filename)
             }
             else if (ch == '|')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '|')
                 {
@@ -769,6 +787,7 @@ void scanner(const char * filename)
             }
             else if (ch == '=')
             {
+                spaceCheck();
                 ch = fgetc(infile);
                 if (ch == '=')
                 {
@@ -817,6 +836,7 @@ void scanner(const char * filename)
                 stackDepth--;
                 stackPop();
                 lineBra[5][rightBig] = line;
+                newLineStyleCheck();
                 createNewNode("}",CLE_OPE_DESC,R_BOUNDER,-1,line);
             }
             else if (ch == '.')
@@ -908,22 +928,27 @@ void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** e
 {
     initialize();
     scanner(file);
-    /* printf("%s", file); */
     * nHead = normalHead;
     * eHead = errorHead;
     * iHead = idenHead;
 }
 
-/* int main() */
-/* { */
-/*     struct normalNode * normalPoint; */
-/*     struct errorNode * errorPoint; */
-/*     struct identiferNode *idenPoint; */
-/*     char file[50] = "../INDENT.TMP"; */
+int getStyleMark()
+{
+    return styleMark;
+}
 
-/*     printf("begin\n"); */
-/*     CLexAnalyser(file, &normalPoint, &errorPoint, &idenPoint); */
+void newLineStyleCheck() {
+    normalNode * p = normalTail;
+    while (p != normalHead && p->type == SPACE) p = p->pre;
+    if (p->line == line) {
+        styleMark -= 2;
+    }
+}
 
-/*     return 0; */
-/* } */
-
+void spaceCheck()
+{
+    if (normalTail->type != SPACE) {
+        styleMark -= 2;
+    }
+}
