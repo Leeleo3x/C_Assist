@@ -17,7 +17,6 @@ int lineBra[6][1000] ;
 int static_iden_number = 0;
 int stackDepth = 0;
 int styleMark = 100;
-int line = 1;
 
 
 struct stackStruct
@@ -34,13 +33,14 @@ struct errorNode * errorHead, * errorTail = NULL;
 struct identiferNode * idenHead, * idenTail = NULL;
 
 void spaceCheck();
-void newLineStyleCheck();
+void newLineStyleCheck(int line);
 
 void stackPush(const char * identiferName, int identiferType)
 {
     struct stackStruct * tmp;
     tmp = (struct stackStruct *) malloc(sizeof(struct stackStruct));
     tmp->identiferName = (char *) malloc(sizeof(char) * strlen(identiferName));
+    strcpy(tmp->identiferName, identiferName);
     tmp->identiferType = identiferType;
     tmp->currentDepth = stackDepth;
     tmp->pre = stackTail;
@@ -74,6 +74,7 @@ void initialize()
 {
     char str[30];
     freopen("./CLex/key","r",stdin);
+    /* freopen("key", "r", stdin); */
     keySum = 0;
     while (scanf("%s",str) != EOF)
     {
@@ -82,6 +83,7 @@ void initialize()
     }
     fclose(stdin);
     freopen("./CLex/limit","r",stdin);
+    /* freopen("limit", "r", stdin); */
     limitSum = 0;
     while (scanf("%s",str) != EOF)
     {
@@ -91,6 +93,7 @@ void initialize()
     }
     fclose(stdin);
     freopen("./CLex/opera","r",stdin);
+    /* freopen("opera", "r", stdin); */
     operaSum = 0;
     while (scanf("%s",str) != EOF)
     {
@@ -278,12 +281,15 @@ void preProcess(char * word, int line)
 
 void scanner(const char * filename)
 {
+    int line = 1;
     char ch;
     char array[30];
     char * word;
     int i,addr_tmp;
     int seekKey;
     FILE * infile;
+
+
     infile = fopen(filename,"r");
     ch = fgetc(infile);
     while (! feof(infile))
@@ -836,7 +842,7 @@ void scanner(const char * filename)
                 stackDepth--;
                 stackPop();
                 lineBra[5][rightBig] = line;
-                newLineStyleCheck();
+                newLineStyleCheck(line);
                 createNewNode("}",CLE_OPE_DESC,R_BOUNDER,-1,line);
             }
             else if (ch == '.')
@@ -938,8 +944,9 @@ int getStyleMark()
     return styleMark;
 }
 
-void newLineStyleCheck() {
-    normalNode * p = normalTail;
+void newLineStyleCheck(int line) {
+
+    struct normalNode * p = normalTail;
     while (p != normalHead && p->type == SPACE) p = p->pre;
     if (p->line == line) {
         styleMark -= 2;
@@ -952,3 +959,9 @@ void spaceCheck()
         styleMark -= 2;
     }
 }
+
+/* int main() */
+/* { */
+/*     initialize(); */
+/*     scanner("test.c"); */    
+/* } */
