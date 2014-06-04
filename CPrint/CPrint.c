@@ -1,7 +1,7 @@
 /*
  *  Filename: CodeRebuild.c
  *  Create: 05/11/2014
- *  Author: Leo Lee , leeleo3x@gmail.com
+ *  Author: Momoco
  *
  */
 
@@ -93,10 +93,15 @@ void printError(int beginX, int beginY,int width,int height, struct errorNode * 
 
     while (errorPoint) {
         printTextWithColor("error", RED);
-        printTextWithColor("(", YELLOW);
+        printTextWithColor("(line: ", YELLOW);
         itoa(errorPoint->line, str, 10);
         printTextWithColor(str, YELLOW);
         printTextWithColor(")", YELLOW);
+        if (errorPoint->type == UNUSED_IDENTIFIER_NUM || errorPoint->type == UNDEFINED_IDENTIFIER_NUM) {
+            printTextWithColor(" '", YELLOW);
+            printTextWithColor(errorPoint->content, YELLOW);
+            printTextWithColor("'", YELLOW);
+        }
         printTextWithColor(" ", WHITE);
         printTextWithColor(errorPoint->describe, WHITE);  
         currentY = currentY + charHeight; 

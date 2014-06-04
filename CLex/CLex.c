@@ -24,6 +24,8 @@ struct stackStruct
     char * identiferName;
     int identiferType;
     int currentDepth;
+    int refferenceCount;
+    int line;
     struct stackStruct * pre;
 };
 
@@ -35,40 +37,6 @@ struct identiferNode * idenHead, * idenTail = NULL;
 void spaceCheck();
 void newLineStyleCheck(int line);
 
-void stackPush(const char * identiferName, int identiferType)
-{
-    struct stackStruct * tmp;
-    tmp = (struct stackStruct *) malloc(sizeof(struct stackStruct));
-    tmp->identiferName = (char *) malloc(sizeof(char) * strlen(identiferName));
-    strcpy(tmp->identiferName, identiferName);
-    tmp->identiferType = identiferType;
-    tmp->currentDepth = stackDepth;
-    tmp->pre = stackTail;
-    stackTail = tmp;  
-}
-
-void stackPop()
-{
-    while (stackTail != NULL && stackTail->currentDepth > stackDepth){
-        struct stackStruct * tmp;
-        tmp = stackTail;
-        stackTail = stackTail->pre;
-        free(tmp->identiferName);
-        free(tmp);
-    }
-}
-
-int stackGetIdentiferType(const char * identiferName)
-{
-    struct stackStruct * tmp = stackTail;
-    while (tmp != NULL) {
-        if (strcmp(identiferName, tmp->identiferName) == 0) {
-            return tmp->identiferType;
-        }
-        tmp = tmp->pre;
-    }
-    return 0;
-}
 
 void initialize()
 {
@@ -279,6 +247,48 @@ void preProcess(char * word, int line)
     }
 }
 
+void stackPush(const char * identiferName, int identiferType, int line)
+{
+    struct stackStruct * tmp;
+    tmp = (struct stackStruct *) malloc(sizeof(struct stackStruct));
+    tmp->identiferName = (char *) malloc(sizeof(char) * strlen(identiferName));
+    strcpy(tmp->identiferName, identiferName);
+    tmp->identiferType = identiferType;
+    tmp->currentDepth = stackDepth;
+    tmp->refferenceCount = 0;
+    tmp->pre = stackTail;
+    tmp->line = line;
+    stackTail = tmp;  
+}
+
+void stackPop()
+{
+    while (stackTail != NULL && stackTail->currentDepth > stackDepth){
+        struct stackStruct * tmp;
+        if (stackTail->refferenceCount == 0) {
+            createNewError(stackTail->identiferName, UNUSED_IDENTIFIER, UNUSED_IDENTIFIER_NUM, stackTail->line);
+        }
+        tmp = stackTail;
+        stackTail = stackTail->pre;
+        free(tmp->identiferName);
+        free(tmp);
+    }
+}
+
+int stackGetIdentiferType(const char * identiferName)
+{
+    struct stackStruct * tmp = stackTail;
+    while (tmp != NULL) {
+        if (strcmp(identiferName, tmp->identiferName) == 0) {
+            tmp->refferenceCount ++;
+            return tmp->identiferType;
+        }
+        tmp = tmp->pre;
+    }
+    return 0;
+}
+
+
 void scanner(const char * filename)
 {
     int line = 1;
@@ -314,18 +324,18 @@ void scanner(const char * filename)
             {
                 int identifer = identiferDefineCheck(normalTail);
                 if (identifer) {
-                    addr_tmp = createNewIden(word, IDENTIFER_DEFINATION_DESC, identifer, -1, line);
-                    createNewNode(word, IDENTIFER_DEFINATION_DESC, identifer, addr_tmp, line);
-                    stackPush(word, identifer);
+                    addr_tmp = createNewIden(word, IDENTIFIER_DEFINATION_DESC, identifer, -1, line);
+                    createNewNode(word, IDENTIFIER_DEFINATION_DESC, identifer, addr_tmp, line);
+                    stackPush(word, identifer, line);
                 }
                 else {
                     identifer = stackGetIdentiferType(word);
                     if (identifer) {
-                        addr_tmp = createNewIden(word,IDENTIFER_DESC, identifer, -1, line);
-                        createNewNode(word, IDENTIFER_DESC, identifer, addr_tmp, line);
+                        addr_tmp = createNewIden(word,IDENTIFIER_DESC, identifer, -1, line);
+                        createNewNode(word, IDENTIFIER_DESC, identifer, addr_tmp, line);
                     } else {
-                        createNewNode(word, IDENTIFER_DESC, -1, -1, line);
-                        createNewError(word, UNDEFINED_IDENTIFER, UNDEFINED_IDENTIFER_NUM, line); 
+                        createNewNode(word, IDENTIFIER_DESC, -1, -1, line);
+                        createNewError(word, UNDEFINED_IDENTIFIER, UNDEFINED_IDENTIFIER_NUM, line); 
                     }
                 }
             }
@@ -825,7 +835,7 @@ void scanner(const char * filename)
             }
             else if (ch == ']')
             {
-                leftMiddle++;
+                rightMiddle++;
                 lineBra[3][rightMiddle] = line;
                 createNewNode("]",CLE_OPE_DESC,RIGHT_INDEX,-1,line);
             }
@@ -838,7 +848,7 @@ void scanner(const char * filename)
             }
             else if (ch == '}')
             {
-                leftBig++;
+                rightBig++;
                 stackDepth--;
                 stackPop();
                 lineBra[5][rightBig] = line;
@@ -867,6 +877,8 @@ void scanner(const char * filename)
         }
         ch = fgetc(infile);
     }
+
+    stackPop();
 }
 
 void BraMappingError()
@@ -913,6 +925,7 @@ void BraMappingError()
     {
         int i = (leftBig>rightBig) ? (leftBig - rightBig) : (rightBig - leftBig); //different with origin file
         int flag = (leftBig>rightBig) ? 1 : 0;
+        printf("       %d %d\n", leftBig, rightBig);
         if (flag)
         {
             while (i--)
@@ -934,6 +947,7 @@ void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** e
 {
     initialize();
     scanner(file);
+    BraMappingError();
     * nHead = normalHead;
     * eHead = errorHead;
     * iHead = idenHead;
@@ -960,8 +974,3 @@ void spaceCheck()
     }
 }
 
-/* int main() */
-/* { */
-/*     initialize(); */
-/*     scanner("test.c"); */    
-/* } */

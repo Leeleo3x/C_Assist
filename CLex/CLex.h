@@ -1,21 +1,11 @@
 /*
- * =====================================================================================
  *
  *       Filename:  CLexAnalyzer.h
- *
- *    Description:  head file of CLexAnalyzer.c
- *
- *        Version:  1.0
  *        Created:  03/09/2014 17:39:04
- *       Revision:  none
- *       Compiler:  watcom
- *
  *         Author:  Leo Lee (), leeleo3x@gmail.com
- *   Organization:  ZJU
  *
- * =====================================================================================
  */
-//关键字
+
 #define AUTO 1
 #define BREAK 2
 #define CASE 3
@@ -51,10 +41,10 @@
 #define KEY_DESC "关键字"
 
 //标志符
-#define IDENTIFER 40
-#define IDENTIFER_DESC "标志符"
-#define IDENTIFER_DEFINATION 41
-#define IDENTIFER_DEFINATION_DESC "声明标示符"
+#define IDENTIFIER 40
+#define IDENTIFIER_DESC "标志符"
+#define IDENTIFIER_DEFINATION 41
+#define IDENTIFIER_DEFINATION_DESC "声明标示符"
 
 //常量
 #define INT_VAL 51 //整形常量
@@ -153,8 +143,10 @@
 #define R_BOUNDER_ERROR_NUM 12
 #define PRE_PROCESS_ERROR "preprocessing error" //头文件或者宏定义错误
 #define PRE_PROCESS_ERROR_NUM  13
-#define UNDEFINED_IDENTIFER "undefined identifier"
-#define UNDEFINED_IDENTIFER_NUM 14
+#define UNDEFINED_IDENTIFIER "undefined identifier"
+#define UNDEFINED_IDENTIFIER_NUM 14
+#define UNUSED_IDENTIFIER "unused identifier"
+#define UNUSED_IDENTIFIER_NUM 15
 
 #define _NULL "无"
 
