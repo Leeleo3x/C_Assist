@@ -5,12 +5,13 @@
  */
 #include "../C_Assist.h"
 
-char *keyArr[40],*limitArr[20],*operaArr[40];
+char *keyArr[40], *limitArr[20], *operaArr[40], *stdioArr[65];
 int keySum,limitSum,operaSum;
 int leftSmall = 0;
 int rightSmall = 0;
 int leftMiddle = 0;
 int rightMiddle = 0;
+int stdioSum = 0;
 int leftBig = 0;
 int rightBig = 0;
 int lineBra[6][1000] ;
@@ -21,8 +22,8 @@ int styleMark = 100;
 
 struct stackStruct
 {
-    char * identiferName;
-    int identiferType;
+    char * identifierName;
+    int identifierType;
     int currentDepth;
     int refferenceCount;
     int line;
@@ -32,7 +33,7 @@ struct stackStruct
 struct stackStruct * stackTail = NULL;
 struct normalNode * normalHead, * normalTail = NULL;
 struct errorNode * errorHead, * errorTail = NULL;
-struct identiferNode * idenHead, * idenTail = NULL;
+struct identifierNode * idenHead, * idenTail = NULL;
 
 void spaceCheck();
 void newLineStyleCheck(int line);
@@ -46,7 +47,7 @@ void initialize()
     keySum = 0;
     while (scanf("%s",str) != EOF)
     {
-        keyArr[keySum] = (char *) malloc(sizeof(char));
+        keyArr[keySum] = (char *) malloc(sizeof(char) * strlen(str));
         strcpy(keyArr[keySum++], str);
     }
     fclose(stdin);
@@ -56,7 +57,7 @@ void initialize()
     while (scanf("%s",str) != EOF)
     {
         
-        limitArr[limitSum] = (char *) malloc(sizeof(char));
+        limitArr[limitSum] = (char *) malloc(sizeof(char) * strlen(str));
         strcpy(limitArr[limitSum++],str);
     }
     fclose(stdin);
@@ -65,13 +66,21 @@ void initialize()
     operaSum = 0;
     while (scanf("%s",str) != EOF)
     {
-        operaArr[operaSum] = (char *) malloc(sizeof(char));
+        operaArr[operaSum] = (char *) malloc(sizeof(char) * strlen(str));
         strcpy(operaArr[operaSum++],str);
+    }
+    fclose(stdin);
+
+    freopen("./CLex/stdio", "r", stdin);
+    stdioSum = 0;
+    while (scanf("%s", str) != EOF) {
+        stdioArr[stdioSum] = (char *) malloc(sizeof(char) * strlen(str));
+        strcpy(stdioArr[stdioSum++], str);
     }
     fclose(stdin);
     normalHead = (struct normalNode *) malloc(sizeof(struct normalNode));
     errorHead = (struct errorNode *) malloc(sizeof(struct errorNode));
-    idenHead = (struct identiferNode *) malloc(sizeof(struct identiferNode));
+    idenHead = (struct identifierNode *) malloc(sizeof(struct identifierNode));
 
     normalHead->next = NULL;
     normalHead->pre = NULL;
@@ -133,8 +142,8 @@ void createNewError(const char *content,const char *describe,int type,int line)
 
 int createNewIden(const char * content,const char * describe,int type,int addr,int line)
 {
-    struct identiferNode * p = idenHead;
-    struct identiferNode * temp = (struct identiferNode *) malloc(sizeof(struct identiferNode));
+    struct identifierNode * p = idenHead;
+    struct identifierNode * temp = (struct identifierNode *) malloc(sizeof(struct identifierNode));
     int flag = 0;
     int addr_temp = -2;
     while (p->next != NULL)
@@ -178,7 +187,7 @@ int getCodeFromKey(char * key, char * Arr[], int beginNum, int sum)
     else return -1;
 }
 
-int identiferDefineCheck(struct normalNode * p)
+int identifierDefineCheck(struct normalNode * p)
 {
     while ((p != normalHead && p->type == COMMA) || (p != normalHead && p->type == SPACE)) 
     {
@@ -247,13 +256,13 @@ void preProcess(char * word, int line)
     }
 }
 
-void stackPush(const char * identiferName, int identiferType, int line)
+void stackPush(const char * identifierName, int identifierType, int line)
 {
     struct stackStruct * tmp;
     tmp = (struct stackStruct *) malloc(sizeof(struct stackStruct));
-    tmp->identiferName = (char *) malloc(sizeof(char) * strlen(identiferName));
-    strcpy(tmp->identiferName, identiferName);
-    tmp->identiferType = identiferType;
+    tmp->identifierName = (char *) malloc(sizeof(char) * strlen(identifierName));
+    strcpy(tmp->identifierName, identifierName);
+    tmp->identifierType = identifierType;
     tmp->currentDepth = stackDepth;
     tmp->refferenceCount = 0;
     tmp->pre = stackTail;
@@ -266,22 +275,27 @@ void stackPop()
     while (stackTail != NULL && stackTail->currentDepth > stackDepth){
         struct stackStruct * tmp;
         if (stackTail->refferenceCount == 0) {
-            createNewError(stackTail->identiferName, UNUSED_IDENTIFIER, UNUSED_IDENTIFIER_NUM, stackTail->line);
+            createNewError(stackTail->identifierName, UNUSED_IDENTIFIER, UNUSED_IDENTIFIER_NUM, stackTail->line);
         }
         tmp = stackTail;
         stackTail = stackTail->pre;
-        free(tmp->identiferName);
+        free(tmp->identifierName);
         free(tmp);
     }
 }
 
-int stackGetIdentiferType(const char * identiferName)
+int stackGetIdentiferType(const char * identifierName)
 {
+    int i = 0;
+    for (i = 0; i < stdioSum; i++) {
+        if (strcmp(identifierName, stdioArr[i]) == 0) return IDENTIFIER; 
+    }
+
     struct stackStruct * tmp = stackTail;
     while (tmp != NULL) {
-        if (strcmp(identiferName, tmp->identiferName) == 0) {
+        if (strcmp(identifierName, tmp->identifierName) == 0) {
             tmp->refferenceCount ++;
-            return tmp->identiferType;
+            return tmp->identifierType;
         }
         tmp = tmp->pre;
     }
@@ -322,17 +336,17 @@ void scanner(const char * filename)
             }
             else
             {
-                int identifer = identiferDefineCheck(normalTail);
-                if (identifer) {
-                    addr_tmp = createNewIden(word, IDENTIFIER_DEFINATION_DESC, identifer, -1, line);
-                    createNewNode(word, IDENTIFIER_DEFINATION_DESC, identifer, addr_tmp, line);
-                    stackPush(word, identifer, line);
+                int identifier = identifierDefineCheck(normalTail);
+                if (identifier) {
+                    addr_tmp = createNewIden(word, IDENTIFIER_DEFINATION_DESC, identifier, -1, line);
+                    createNewNode(word, IDENTIFIER_DEFINATION_DESC, identifier, addr_tmp, line);
+                    stackPush(word, identifier, line);
                 }
                 else {
-                    identifer = stackGetIdentiferType(word);
-                    if (identifer) {
-                        addr_tmp = createNewIden(word,IDENTIFIER_DESC, identifer, -1, line);
-                        createNewNode(word, IDENTIFIER_DESC, identifer, addr_tmp, line);
+                    identifier = stackGetIdentiferType(word);
+                    if (identifier) {
+                        addr_tmp = createNewIden(word,IDENTIFIER_DESC, identifier, -1, line);
+                        createNewNode(word, IDENTIFIER_DESC, identifier, addr_tmp, line);
                     } else {
                         createNewNode(word, IDENTIFIER_DESC, -1, -1, line);
                         createNewError(word, UNDEFINED_IDENTIFIER, UNDEFINED_IDENTIFIER_NUM, line); 
@@ -943,7 +957,7 @@ void BraMappingError()
     }
 }
 
-void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** eHead, struct identiferNode ** iHead)
+void CLexAnalyser(char file[], struct normalNode ** nHead, struct errorNode ** eHead, struct identifierNode ** iHead)
 {
     initialize();
     scanner(file);
@@ -959,7 +973,6 @@ int getStyleMark()
 }
 
 void newLineStyleCheck(int line) {
-
     struct normalNode * p = normalTail;
     while (p != normalHead && p->type == SPACE) p = p->pre;
     if (p->line == line) {

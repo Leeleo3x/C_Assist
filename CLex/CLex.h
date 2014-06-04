@@ -174,14 +174,14 @@ struct errorNode
     struct errorNode *next;
 };
 
-struct identiferNode
+struct identifierNode
 {
     char * content;
     char * describe;
     int type;
     int addr;
     int line;
-    struct identiferNode * next, * pre;
+    struct identifierNode * next, * pre;
 };
 
 
