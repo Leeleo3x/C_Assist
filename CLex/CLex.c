@@ -287,11 +287,12 @@ void stackPop()
 int stackGetIdentiferType(const char * identifierName)
 {
     int i = 0;
+    struct stackStruct * tmp = stackTail;
+
     for (i = 0; i < stdioSum; i++) {
         if (strcmp(identifierName, stdioArr[i]) == 0) return IDENTIFIER; 
     }
 
-    struct stackStruct * tmp = stackTail;
     while (tmp != NULL) {
         if (strcmp(identifierName, tmp->identifierName) == 0) {
             tmp->refferenceCount ++;

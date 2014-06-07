@@ -20,7 +20,7 @@ void printInclude();
 void printDefine();
 int getColorWithType(int type);
 
-int textwidth(const char * str)
+int textWidth(const char * str)
 {
     return (strlen(str) * charWidth);
 }
@@ -78,6 +78,7 @@ void printCode(int beginX, int beginY, int width, int height, struct normalNode 
             printTextWithColor(normalPoint->content, WHITE);
         }
         else {
+            printf("%s", normalPoint->content);
             printTextWithColor(normalPoint->content, getColorWithType(normalPoint->type));
         }
         normalPoint = normalPoint->next;
@@ -112,7 +113,7 @@ void printError(int beginX, int beginY,int width,int height, struct errorNode * 
 
 void printTextWithColor(const char * text, int color)
 {
-    int width = textwidth(text);
+    int width = textWidth(text);
     
     if (width + currentX > textViewPosX + textViewWidth) {
         currentY = currentY + charHeight;
@@ -155,7 +156,11 @@ int getColorWithType(int type)
     } 
     else if (type == HEADER) {
         return CYAN;
-    }
+    } 
+    else {
+        if (type == CHAR_VAL || type == STRING_VAL || type == SIN_QUE || type == DOU_QUE)
+            return RED;
+    } 
     return WHITE;
 }
 
