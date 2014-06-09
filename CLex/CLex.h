@@ -148,7 +148,7 @@
 #define UNUSED_IDENTIFIER "unused identifier"
 #define UNUSED_IDENTIFIER_NUM 15
 
-#define _NULL "无"
+#define _NULL ""
 
 #define DESCRIBE 4000
 #define TYPE 4001

@@ -940,7 +940,6 @@ void BraMappingError()
     {
         int i = (leftBig>rightBig) ? (leftBig - rightBig) : (rightBig - leftBig); //different with origin file
         int flag = (leftBig>rightBig) ? 1 : 0;
-        printf("       %d %d\n", leftBig, rightBig);
         if (flag)
         {
             while (i--)

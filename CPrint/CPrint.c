@@ -12,13 +12,39 @@ int textViewPosX, textViewPosY;
 int textViewWidth, textViewHeight;
 int currentLine;
 int indentNum;
+struct errorNode errorPoints[500];
 
 void printCode(int beginX, int beginY, int width, int height, struct normalNode * normalPoint);
 void printError(int beginX, int beginY,int width,int height, struct errorNode * errorPoint);
 void printTextWithColor(const char * text, int color);
 void printInclude();
 void printDefine();
+void errorPointSort(int l, int r);
 int getColorWithType(int type);
+
+void errorPointSort(int l, int r)
+{
+    int i = l,j = r;
+    int mid;
+    struct errorNode tmp;
+
+    mid = errorPoints[(l + r) >> 1].line;
+
+    while (i < j) {
+        while (errorPoints[i].line < mid) i++;
+        while (errorPoints[j].line > mid) j--;
+
+        if (i <= j) {
+            tmp = errorPoints[i];
+            errorPoints[i] = errorPoints[j];
+            errorPoints[j] = tmp;
+            i++;
+            j--;
+        }
+    }
+    if (i < r) errorPointSort(i, r);
+    if (l < j) errorPointSort(l, j);
+}
 
 int textWidth(const char * str)
 {
@@ -78,7 +104,6 @@ void printCode(int beginX, int beginY, int width, int height, struct normalNode 
             printTextWithColor(normalPoint->content, WHITE);
         }
         else {
-            printf("%s", normalPoint->content);
             printTextWithColor(normalPoint->content, getColorWithType(normalPoint->type));
         }
         normalPoint = normalPoint->next;
@@ -88,26 +113,35 @@ void printCode(int beginX, int beginY, int width, int height, struct normalNode 
 void printError(int beginX, int beginY,int width,int height, struct errorNode * errorPoint)
 {
     char str[10];
+    int i = 0;
+    int errorSum;
+
     errorPoint = errorPoint->next; 
+    while (errorPoint) {
+        errorPoints[i++] = * errorPoint;
+        errorPoint = errorPoint->next;
+    }
+    errorSum = i;
+    errorPointSort(0, errorSum-1);
+
     currentX = beginX;
     currentY = beginY;
 
-    while (errorPoint) {
+    for (i = 0; i < errorSum; i++) {
         printTextWithColor("error", RED);
         printTextWithColor("(line: ", YELLOW);
-        itoa(errorPoint->line, str, 10);
+        itoa(errorPoints[i].line, str, 10);
         printTextWithColor(str, YELLOW);
         printTextWithColor(")", YELLOW);
-        if (errorPoint->type == UNUSED_IDENTIFIER_NUM || errorPoint->type == UNDEFINED_IDENTIFIER_NUM) {
+        if (errorPoints[i].type == UNUSED_IDENTIFIER_NUM || errorPoints[i].type == UNDEFINED_IDENTIFIER_NUM) {
             printTextWithColor(" '", YELLOW);
-            printTextWithColor(errorPoint->content, YELLOW);
+            printTextWithColor(errorPoints[i].content, YELLOW);
             printTextWithColor("'", YELLOW);
         }
         printTextWithColor(" ", WHITE);
-        printTextWithColor(errorPoint->describe, WHITE);  
+        printTextWithColor(errorPoints[i].describe, WHITE);  
         currentY = currentY + charHeight; 
         currentX = beginX;
-        errorPoint = errorPoint->next;
     } 
 }
 
