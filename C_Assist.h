@@ -41,6 +41,7 @@ const int charWidth = 8;
 int MouseLeftFlag = 0;
 int styleMark;
 
+
 /*code indent module*/
 void codeIndent(const char * fileName);
 

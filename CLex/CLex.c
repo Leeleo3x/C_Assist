@@ -900,7 +900,7 @@ void BraMappingError()
     if (leftSmall != rightSmall)
     {
         int i = (leftSmall > rightSmall) ? (leftSmall-rightSmall) : (rightSmall - leftSmall);
-        int flag = (leftSmall > rightSmall) ? 1 : 0;
+        int flag = (leftSmall>rightSmall) ? 1 : 0;
         if (flag)
         {
             while (i--)
@@ -937,10 +937,8 @@ void BraMappingError()
     }
     if (leftBig != rightBig)
     {
-        int i = (leftBig > rightBig) ? (leftBig - rightBig) : (rightBig - leftBig); //different with origin file
-        int flag = (leftBig > rightBig) ? 1 : 0;
-        createNewError(_NULL, L_BOUNDER_ERROR, L_BOUNDER_ERROR_NUM, rightBig);
-        createNewError(_NULL, L_BOUNDER_ERROR, L_BOUNDER_ERROR_NUM, leftBig);
+        int i = (leftBig>rightBig) ? (leftBig - rightBig) : (rightBig - leftBig); //different with origin file
+        int flag = (leftBig>rightBig) ? 1 : 0;
         if (flag)
         {
             while (i--)
